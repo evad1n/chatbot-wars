@@ -30,15 +30,8 @@ func main() {
 	router.GET("/user/:name/*action", func(c *gin.Context) {
 		name := c.Param("name")
 		action := c.Param("action")
-		message := name + " is " + action
+		message := name + " wants to" + action
 		c.String(http.StatusOK, message)
-	})
-
-	// For each matched request Context will hold the route definition
-	router.POST("/user/:name/*action", func(c *gin.Context) {
-		if c.FullPath() == "/user/:name/*action" {
-			c.String(http.StatusOK, "sup yo")
-		}
 	})
 
 	router.Run(host + ":" + port)
