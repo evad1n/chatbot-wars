@@ -1,18 +1,46 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
 	host = ""
 	port = "8080"
+
+	collection = "chatbot-wars" // MongoDB collection name
 )
 
 func main() {
+	// Connect to MongoDB
+	loadENV()
+	mongoURI := fmt.Sprintf("mongodb+srv://web4200:%s@demo.vsqii.mongodb.net/%s?retryWrites=true&w=majority", os.Getenv("MONGO_PWD"), collection)
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Successfully connected to MongoDB with collection " + collection)
+	defer client.Disconnect(ctx)
+
+	// Create router
 	router := gin.Default()
+
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -34,5 +62,13 @@ func main() {
 		c.String(http.StatusOK, message)
 	})
 
+	// Listen and serve
 	router.Run(host + ":" + port)
+}
+
+// Load env variables
+func loadENV() {
+	if err := godotenv.Load(".env"); err != nil {
+		log.Printf("error loading env variables: %v\n", err)
+	}
 }

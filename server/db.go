@@ -1,39 +1,39 @@
 package main
 
-import (
-	"context"
-	"fmt"
-	"log"
-	"os"
-	"time"
+type (
+	chatbot struct {
+		name   string
+		config config
+		data
+	}
 
-	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	config struct {
+	}
+
+	data struct {
+		greetings []greeting
+		questions []question
+		responses []response
+	}
+
+	mood int
+
+	question struct {
+		text string
+	}
+
+	response struct {
+		text string
+	}
+
+	greeting struct {
+		text string
+	}
 )
 
 const (
-	collection = "chatbot-wars"
+	anger mood = iota
+	enthusiastic
+	sadness
+	dubious
 )
-
-// Load env variables
-func init() {
-	if err := godotenv.Load(".env"); err != nil {
-		log.Printf("error loading env variables: %v\n", err)
-	}
-}
-
-func connectDB() {
-	mongoURI := fmt.Sprintf("mongodb+srv://web4200:%s@demo.vsqii.mongodb.net/%s?retryWrites=true&w=majority", os.Getenv("MONGO_PWD"), collection)
-
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
-	if err != nil {
-		log.Fatal(err)
-	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer client.Disconnect(ctx)
-}
