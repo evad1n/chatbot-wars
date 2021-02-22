@@ -1,15 +1,11 @@
 import './App.css';
-import Landing from 'components/Landing';
+import Router from 'components/Router';
+import React from 'react';
 
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <Landing />
-      </header>
-    </div>
-  );
+export default function App() {
+    return (
+        <div className="App">
+            <h1>HELLO</h1>
+        </div>
+    );
 }
-
-export default App;

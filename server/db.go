@@ -1,38 +1,45 @@
 package main
 
 type (
-	chatbot struct {
+	// Chatbot represents a bot with all its data and settings
+	Chatbot struct {
 		name   string
-		config config
-		data
+		config Config
+		data   Data
 	}
 
-	config struct {
+	// Config is
+	Config struct {
 	}
 
-	data struct {
-		greetings []greeting
-		questions []question
-		responses []response
+	// Data is the collection of lines
+	Data struct {
+		greetings []Greeting
+		questions []Question
+		responses []Response
 	}
 
-	mood int
+	// Mood enum for categorizing lines
+	Mood int
 
-	question struct {
+	// Question is a line that desires a response
+	Question struct {
 		text string
 	}
 
-	response struct {
+	// Response is a line that responds to a question
+	Response struct {
 		text string
 	}
 
-	greeting struct {
+	// Greeting is a line said upon entering a conversation
+	Greeting struct {
 		text string
 	}
 )
 
 const (
-	anger mood = iota
+	anger Mood = iota
 	enthusiastic
 	sadness
 	dubious

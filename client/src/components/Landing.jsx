@@ -1,9 +1,10 @@
 import React from 'react';
+import Counter from 'components/Counter';
 
 export default function Landing() {
     return (
-        <div>
-            <h1>Chatbot Wars</h1>
+        <div className="container">
+            <Counter />
         </div>
     );
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -18,13 +19,14 @@ const (
 	host = ""
 	port = "8080"
 
-	collection = "chatbot-wars" // MongoDB collection name
+	dbName         = "chatbot-wars" // MongoDB database name
+	collectionName = "bots"         // MongoDB collection name
 )
 
 func main() {
 	// Connect to MongoDB
 	loadENV()
-	mongoURI := fmt.Sprintf("mongodb+srv://web4200:%s@demo.vsqii.mongodb.net/%s?retryWrites=true&w=majority", os.Getenv("MONGO_PWD"), collection)
+	mongoURI := fmt.Sprintf("mongodb+srv://web4200:%s@demo.vsqii.mongodb.net/%s?retryWrites=true&w=majority", os.Getenv("MONGO_PWD"), dbName)
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
@@ -35,8 +37,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Successfully connected to MongoDB with collection " + collection)
 	defer client.Disconnect(ctx)
+
+	collection := client.Database(dbName).Collection(collectionName)
+	// Successfully connected
+	log.Printf("Successfully connected to MongoDB\ndatabase: %s\ncollection: %s\n\n", dbName, collectionName)
 
 	// Create router
 	router := gin.Default()
@@ -60,6 +65,13 @@ func main() {
 		action := c.Param("action")
 		message := name + " wants to" + action
 		c.String(http.StatusOK, message)
+	})
+
+	router.GET("/bot/:id", func(c *gin.Context) {
+		var bot Chatbot
+		id := c.Param("id")
+		filter := bson.D{{Key: "_id", Value: id}}
+		collection.FindOne(ctx, filter).Decode(&bot)
 	})
 
 	// Listen and serve
