@@ -1,17 +1,7 @@
-import React from 'react';
+import { AppBar, Toolbar, CssBaseline, Divider, List, ListItem, ListItemIcon, Drawer, Typography, ListItemText } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+import React, { useEffect, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -21,6 +11,18 @@ const useStyles = makeStyles((theme) => ({
     },
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
+        backgroundColor: theme.palette.primary.main
+    },
+    appBarLeft: {
+        width: drawerWidth,
+        flexShrink: 1,
+        fontSize: 30,
+        fontWeight: 500,
+    },
+    appBarRight: {
+        flexGrow: 1,
+        paddingLeft: 20,
+        fontSize: 30,
     },
     drawer: {
         width: drawerWidth,
@@ -32,23 +34,42 @@ const useStyles = makeStyles((theme) => ({
     drawerContainer: {
         overflow: 'auto',
     },
+    activeNav: {
+        fontWeight: "bold",
+        color: theme.palette.secondary.contrastText,
+        backgroundColor: theme.palette.secondary.main,
+        '&:hover': {
+            backgroundColor: theme.palette.secondary.main,
+        }
+    },
     content: {
-        flexGrow: 1,
+        marginTop: theme.layout.nav.appBarHeight,
         padding: theme.spacing(3),
+        flexGrow: 1,
+        minHeight: "100%",
     },
 }));
 
-export default function ClippedDrawer() {
+export default function ClippedDrawer({ routes, children }) {
     const classes = useStyles();
+    const [title, setTitle] = useState("Home");
+    let location = useLocation();
+    useEffect(() => {
+        setTitle(routes[location.pathname].name);
+        return () => {
+        };
+    }, [location, routes, title]);
 
     return (
         <div className={classes.root}>
             <CssBaseline />
             <AppBar position="fixed" className={classes.appBar}>
-                <Toolbar>
-                    <Typography variant="h6" noWrap>
-                        Clipped drawer
-          </Typography>
+                <Toolbar disableGutters>
+                    <Typography className={classes.appBarLeft} variant="h4" align={'center'} noWrap>
+                        Chatbot Wars
+                    </Typography>
+                    <Divider orientation="vertical" flexItem />
+                    <Typography className={classes.appBarRight} variant="h5" align={'center'}>{title}</Typography>
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -61,25 +82,25 @@ export default function ClippedDrawer() {
                 <Toolbar />
                 <div className={classes.drawerContainer}>
                     <List>
-                        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                            <ListItem button key={text}>
-                                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                                <ListItemText primary={text} />
-                            </ListItem>
-                        ))}
-                    </List>
-                    <Divider />
-                    <List>
-                        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                            <ListItem button key={text}>
-                                <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                                <ListItemText primary={text} />
+                        {Object.values(routes).map((route, index) => (
+                            <ListItem
+                                button
+                                exact
+                                component={NavLink}
+                                activeClassName={classes.activeNav}
+                                to={route.path}
+                                key={index}>
+                                <ListItemIcon>
+                                    <route.icon />
+                                </ListItemIcon>
+                                <ListItemText primary={route.name} />
                             </ListItem>
                         ))}
                     </List>
                 </div>
             </Drawer>
             <main className={classes.content}>
+                {children}
             </main>
         </div>
     );

@@ -1,11 +1,12 @@
-import './App.css';
-import Router from 'components/Router';
 import React from 'react';
+import Router from 'Router';
+import { ThemeProvider } from '@material-ui/core/styles';
+import theme from 'theme';
 
 export default function App() {
     return (
-        <div className="App">
-            <h1>HELLO</h1>
-        </div>
+        <ThemeProvider theme={theme}>
+            <Router />
+        </ThemeProvider>
     );
 }
