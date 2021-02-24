@@ -2,46 +2,31 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
 	host = ""
 	port = "8080"
-
-	dbName         = "chatbot-wars" // MongoDB database name
-	collectionName = "bots"         // MongoDB collection name
 )
 
+var ()
+
 func main() {
-	// Connect to MongoDB
-	loadENV()
-	mongoURI := fmt.Sprintf("mongodb+srv://web4200:%s@demo.vsqii.mongodb.net/%s?retryWrites=true&w=majority", os.Getenv("MONGO_PWD"), dbName)
+	// Timeout context
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
+	// Connect to mongoDB
+	db, err := connectDB(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("connecting to mongo db: %v", err)
 	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer client.Disconnect(ctx)
-
-	collection := client.Database(dbName).Collection(collectionName)
-	// Successfully connected
-	log.Printf("Successfully connected to MongoDB\ndatabase: %s\ncollection: %s\n\n", dbName, collectionName)
 
 	// Create router
 	router := gin.Default()
@@ -67,20 +52,35 @@ func main() {
 		c.String(http.StatusOK, message)
 	})
 
-	router.GET("/bot/:id", func(c *gin.Context) {
-		var bot Chatbot
-		id := c.Param("id")
-		filter := bson.D{{Key: "_id", Value: id}}
-		collection.FindOne(ctx, filter).Decode(&bot)
+	// router.GET("/bots/:id", func(c *gin.Context) {
+	// 	var bot Chatbot
+	// 	id := c.Param("id")
+	// 	filter := bson.D{{Key: "_id", Value: id}}
+	// 	collection.FindOne(ctx, filter).Decode(&bot)
+	// })
+
+	router.GET("/bots", func(c *gin.Context) {
+		collection := db.Collection(botsCollection)
+		var bots []Chatbot
+		cur, err := collection.Find(ctx, bson.D{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer cur.Close(ctx)
+		for cur.Next(ctx) {
+			var result Chatbot
+			err := cur.Decode(&result)
+			if err != nil {
+				log.Fatal(err)
+			}
+			// do something with result....
+			bots = append(bots, result)
+		}
+		if err := cur.Err(); err != nil {
+			log.Fatal(err)
+		}
 	})
 
 	// Listen and serve
 	router.Run(host + ":" + port)
-}
-
-// Load env variables
-func loadENV() {
-	if err := godotenv.Load(".env"); err != nil {
-		log.Printf("error loading env variables: %v\n", err)
-	}
 }
