@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -34,14 +35,16 @@ func connectDB() (*mongo.Database, error) {
 	}
 	db := client.Database(dbName)
 	// Successfully connected**
-	log.Printf("Successfully connected to MongoDB\ndatabase: %s\n\n", dbName)
+	log.Printf("Successfully connected to MongoDB (database: %s)\n\n", dbName)
 
 	return db, nil
 }
 
-// func collectionCtx(db *mongo.Database, name Collection) (*mongo.Collection, context.Context) {
-// 	collection := db.Collection(botsCollection)
-// 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-// 	// defer cancel()
-// 	return collection, ctx
-// }
+// Converts a hex ID string to a bson objectID
+func toMongoID(hexID string) (primitive.ObjectID, error) {
+	id, err := primitive.ObjectIDFromHex(hexID)
+	if err != nil {
+		return id, fmt.Errorf("bad id format: %v", err)
+	}
+	return id, nil
+}
