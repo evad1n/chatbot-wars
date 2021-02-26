@@ -13,7 +13,7 @@ const (
 )
 
 func main() {
-	log.SetFlags(log.Lshortfile)
+	log.SetFlags(log.Lshortfile | log.Ltime)
 
 	// Load environment variables
 	loadENV()
@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// Listen and serve
-	server.router.Run(host + ":" + fmt.Sprint(port))
+	server.Router.Run(host + ":" + fmt.Sprint(port))
 }
 
 // Load env variables
