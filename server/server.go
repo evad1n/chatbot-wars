@@ -5,16 +5,20 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 func createServer() (Server, error) {
 	s := Server{
-		Controllers: make(map[string]Controller),
-		Timeout:     5000,
+		Controllers:        make(map[string]Controller),
+		Timeout:            5000,
+		ValidationMessages: validationErrorMessages,
 	}
 
 	var err error
@@ -29,6 +33,8 @@ func createServer() (Server, error) {
 
 	// Default has logger and debug mode
 	s.Router = gin.Default()
+
+	validateJSONTags()
 
 	// Register routes
 	s.registerRoutes()
@@ -59,4 +65,32 @@ func (s *Server) registerRoutes() {
 // Returns a timeout context using the request context handler and the server timeout
 func (s *Server) timeoutCtx(c *gin.Context) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(c.Request.Context(), time.Duration(s.Timeout)*time.Millisecond)
+}
+
+// Validation errors will print the JSON field name, not the struct field name
+func validateJSONTags() {
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterTagNameFunc(func(fld reflect.StructField) string {
+			name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+			if name == "-" {
+				return ""
+			}
+			return name
+		})
+	}
+}
+
+// Better validation messages
+func validationErrorMessages(verr validator.ValidationErrors) []ValidationError {
+	errs := []ValidationError{}
+
+	for _, fe := range verr {
+		err := fe.ActualTag()
+		if fe.Param() != "" {
+			err = fmt.Sprintf("%s=%s", err, fe.Param())
+		}
+		errs = append(errs, ValidationError{Field: fmt.Sprintf("%s (%s)", fe.Field(), fe.Namespace()), Reason: err})
+	}
+
+	return errs
 }

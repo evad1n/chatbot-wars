@@ -16,17 +16,17 @@ import (
 type (
 	// Chatbot is
 	Chatbot struct {
-		ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-		Name string             `json:"name" binding:"required,max=30"`
-		// Greetings []Line             `json:"greetings" binding:"required,gte=1"`
-		// Questions []Line             `json:"questions" binding:"required,gte=2"`
-		// Responses []Line             `json:"responses" binding:"required,gte=2"`
+		ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+		Name      string             `json:"name" binding:"required,max=30"`
+		Greetings []Line             `json:"greetings" binding:"required,gte=1,dive"`
+		Questions []Line             `json:"questions" binding:"required,gte=2,dive"`
+		Responses []Line             `json:"responses" binding:"required,gte=2,dive"`
 	}
 
 	// Line is a Chatbot response with associated data
 	Line struct {
-		Text string `json:"text" binding:"required,gt=0"`
-		Mood Mood   `json:"mood" binding:"required,min=0,max=2"`
+		Text string `json:"text" binding:"required"`
+		Mood Mood   `json:"mood" binding:"required,min=0,max=2"` // Should correspond to enum values
 	}
 
 	// Mood enum
@@ -112,15 +112,12 @@ func initBotsController(s *Server, collection *mongo.Collection, log *log.Logger
 
 			// Bind request body
 			var bot Chatbot
-			if err := c.ShouldBind(&bot); err != nil {
-				_, ok := err.(validator.ValidationErrors)
-				if !ok {
-					c.String(http.StatusBadRequest, err.Error())
+			if err := c.ShouldBindJSON(&bot); err != nil {
+				if errs, ok := err.(validator.ValidationErrors); ok {
+					c.JSON(http.StatusBadRequest, gin.H{"errors": s.ValidationMessages(errs)})
 				} else {
-					c.JSON(http.StatusBadRequest, gin.H{"message": bot.GetError(err.(validator.ValidationErrors))})
+					c.String(http.StatusBadRequest, err.Error())
 				}
-				// c.JSON(http.StatusBadRequest, gin.H{"message": })
-
 				return
 			}
 
@@ -212,30 +209,4 @@ func initBotsController(s *Server, collection *mongo.Collection, log *log.Logger
 	}
 
 	return c
-}
-
-// GetError test
-func (b Chatbot) GetError(err validator.ValidationErrors) []string {
-	errors := []string{}
-	for _, err := range err {
-		errors = append(errors, err.ActualTag())
-	}
-	return errors
-	// if val, exist := err["ChatBot.Greetings"]; exist {
-	// 	if val.Field == "Greetings" {
-	// 		switch val.Tag {
-	// 		case "required":
-	// 			return "Please enter your mobile number"
-	// 		}
-	// 	}
-	// }
-	// if val, exist := err["ChatBot.Code"]; exist {
-	// 	if val.Field == "Code" {
-	// 		switch val.Tag {
-	// 		case "required":
-	// 			return "Please enter the verification code"
-	// 		}
-	// 	}
-	// }
-	// return "parameter error"
 }

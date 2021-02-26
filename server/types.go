@@ -4,16 +4,24 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type (
 	// Server contains all the high level data for the server
 	Server struct {
-		DB          *mongo.Database
-		Router      *gin.Engine
-		Controllers map[string]Controller // Named registered controllers
-		Timeout     int                   // How long to wait for requests (milliseconds)
+		DB                 *mongo.Database
+		Router             *gin.Engine
+		Controllers        map[string]Controller // Named registered controllers
+		Timeout            int                   // How long to wait for requests (milliseconds)
+		ValidationMessages func(validator.ValidationErrors) []ValidationError
+	}
+
+	// ValidationError represents a more descriptive message to be sent in the event of validation errors
+	ValidationError struct {
+		Field  string `json:"field"`
+		Reason string `json:"reason"`
 	}
 
 	// ServerHandlerFunc is a wrapper around gin.HandlerFunc that allows access to server variables
