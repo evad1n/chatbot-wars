@@ -26,7 +26,7 @@ type (
 	// Line is a Chatbot response with associated data
 	Line struct {
 		Text string `json:"text" binding:"required"`
-		Mood Mood   `json:"mood" binding:"required,min=0,max=2"` // Should correspond to enum values
+		Mood *Mood  `json:"mood" binding:"required,min=0,max=2"` // Should correspond to enum values
 	}
 
 	// Mood enum
@@ -121,8 +121,6 @@ func initBotsController(s *Server, collection *mongo.Collection, log *log.Logger
 				return
 			}
 
-			log.Printf("PostOne: post bot data: %+v\n", bot)
-
 			// Now insert it
 			res, err := collection.InsertOne(ctx, bot)
 			if err != nil {
@@ -162,7 +160,6 @@ func initBotsController(s *Server, collection *mongo.Collection, log *log.Logger
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
 			}
-			log.Printf("UpdateOne: update bot data: %v\n", updatedBot)
 
 			// Full replace to simplify things
 			_, err = collection.ReplaceOne(ctx, filter, updatedBot)

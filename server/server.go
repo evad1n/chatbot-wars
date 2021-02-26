@@ -53,15 +53,6 @@ func (s *Server) registerController(name string, initFunc ControllerInitFunction
 	log.Printf("Registered [%s] controller with collection [%s]\n", name, collectionName)
 }
 
-// All the defined routes for the server
-func (s *Server) registerRoutes() {
-	s.Router.GET("/bots", s.Controllers["bots"].GetAll(s))
-	s.Router.GET("/bots/:id", s.Controllers["bots"].GetOne(s))
-	s.Router.POST("/bots", s.Controllers["bots"].PostOne(s))
-	s.Router.PUT("/bots/:id", s.Controllers["bots"].UpdateOne(s))
-	s.Router.DELETE("/bots/:id", s.Controllers["bots"].DeleteOne(s))
-}
-
 // Returns a timeout context using the request context handler and the server timeout
 func (s *Server) timeoutCtx(c *gin.Context) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(c.Request.Context(), time.Duration(s.Timeout)*time.Millisecond)
