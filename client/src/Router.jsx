@@ -1,26 +1,26 @@
-import Create from 'components/Create';
+import Workshop from 'components/workshop/Workshop';
 import Fight from 'components/Fight';
-import Landing from "components/Landing";
+import Home from "components/Home";
 import NavMenu from 'components/NavMenu';
 import React from "react";
 import {
     BrowserRouter as Router,
     Route, Switch
 } from "react-router-dom";
-import { Home, Build, Forum } from '@material-ui/icons';
+import { Home as HomeIcon, Build, Forum } from '@material-ui/icons';
 
 
 export const routes = {
     "/": {
         name: "Home",
         path: "/",
-        component: Landing,
-        icon: Home
+        component: Home,
+        icon: HomeIcon
     },
-    "/create": {
-        name: "Create",
-        path: "/create",
-        component: Create,
+    "/workshop": {
+        name: "Workshop",
+        path: "/workshop",
+        component: Workshop,
         icon: Build
     },
     "/fight": {

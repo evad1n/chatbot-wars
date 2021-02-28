@@ -43,10 +43,10 @@ const useStyles = makeStyles((theme) => ({
         }
     },
     content: {
-        marginTop: theme.layout.nav.appBarHeight,
+        paddingTop: theme.layout.nav.appBarHeight + 10,
         padding: theme.spacing(3),
         flexGrow: 1,
-        minHeight: "100%",
+        minHeight: "100vh",
     },
 }));
 

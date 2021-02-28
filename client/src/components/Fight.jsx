@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
+import Arena from './Arena';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -15,6 +16,7 @@ export default function Fight() {
     return (
         <div>
             <Typography className={classes.title} align={'center'}>WELCOME TO THE DEATH ZONE</Typography>
+            <Arena />
         </div>
     );
 }
