@@ -9,17 +9,17 @@ export default function Greetings({ updateHandler: updateGreetings }) {
         mood: 0,
     });
 
-    const setGreetingMood = (mood) => {
-        setGreeting({
-            text: greeting.text,
-            mood: mood
-        });
-    };
-
     const setGreetingText = (text) => {
         setGreeting({
             text: text,
             mood: greeting.mood
+        });
+    };
+
+    const setGreetingMood = (mood) => {
+        setGreeting({
+            text: greeting.text,
+            mood: mood
         });
     };
 

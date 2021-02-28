@@ -47,10 +47,12 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(3),
         flexGrow: 1,
         minHeight: "100vh",
+        display: "flex",
+        flexDirection: 'column'
     },
 }));
 
-export default function ClippedDrawer({ routes, children }) {
+export default function NavMenu({ routes, children }) {
     const classes = useStyles();
     const [title, setTitle] = useState("Home");
     let location = useLocation();

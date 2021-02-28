@@ -3,13 +3,12 @@ import React from 'react';
 
 
 const Moods = [
-    "happy",
-    "angry",
-    "sad",
+    "Happy",
+    "Angry",
+    "Sad",
 ];
 
 export default function LineInput({ label, selection, updateText, updateSelection }) {
-    console.log(selection);
 
     const changeText = (event) => {
         updateText(event.target.value);
@@ -17,7 +16,6 @@ export default function LineInput({ label, selection, updateText, updateSelectio
 
     const changeSelection = (event) => {
         updateSelection(event.target.value);
-        console.log(event.target.value);
     };
 
 

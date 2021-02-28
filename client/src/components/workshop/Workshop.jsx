@@ -67,9 +67,9 @@ export default function Workshop() {
 
 
     return (
-        <div>
+        <React.Fragment>
             <Typography className={classes.title} align={'center'}>WELCOME TO THE WORKSHOP</Typography>
             <Create steps={steps}></Create>
-        </div>
+        </React.Fragment>
     );
 }

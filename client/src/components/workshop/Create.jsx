@@ -10,6 +10,9 @@ import React, { useState } from 'react';
 const useStyles = makeStyles((theme) => ({
     root: {
         width: '100%',
+        height: '100%',
+        display: "flex",
+        flexDirection: 'column'
     },
     button: {
         marginRight: theme.spacing(1),
@@ -119,12 +122,12 @@ export default function Create({ steps }) {
                         <Button onClick={handleReset}>Reset</Button>
                     </div>
                 ) : (
-                        <Container>
+                        <React.Fragment>
                             {React.createElement(
                                 steps[activeStep].component,
                                 { value: steps[activeStep].value, updateHandler: steps[activeStep].handler },
                             )}
-                        </Container>
+                        </React.Fragment>
                     )}
             </Container>
         </div>
