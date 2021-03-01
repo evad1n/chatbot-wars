@@ -7,5 +7,4 @@ require (
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/joho/godotenv v1.3.0
 	go.mongodb.org/mongo-driver v1.4.6
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 )

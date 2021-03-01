@@ -1,5 +1,5 @@
 import { List, ListItem, ListItemText } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const fake = [
     {
@@ -10,7 +10,10 @@ const fake = [
 
 export default function Arena() {
 
-    const [transcript, setTranscript] = useState(fake);
+    const [transcript] = useState(fake);
+
+    // Use useEffect to subscribe to a room on the server
+    // https://reactjs.org/docs/hooks-effect.html
 
     return (
         <div>

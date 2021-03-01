@@ -1,4 +1,4 @@
-import { Button, Grid, Typography } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 import React from 'react';
 
 export default function Finalize() {
@@ -13,8 +13,10 @@ export default function Finalize() {
                     You can keep working on your bot anytime by going back to the workshop.
                 </Typography>
             </Grid>
-            <Grid item xs={12}>
-                <Button style={{ fontSize: 20 }} fullWidth size="large" variant="contained" color="secondary">To Glory</Button>
+            <Grid item xs={12} >
+                <Typography variant={'h6'} >
+                    Click 'To Glory' to send your bot to the battlefield!
+                </Typography>
             </Grid>
         </Grid>
     );

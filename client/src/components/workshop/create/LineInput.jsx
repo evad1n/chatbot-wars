@@ -8,14 +8,18 @@ const Moods = [
     "Sad",
 ];
 
-export default function LineInput({ label, selection, updateText, updateSelection }) {
+const streamErrors = (msgs) => {
+    return msgs.join("\n");
+};
+
+export default function LineInput({ error, errorMessages, label, line, updateLine }) {
 
     const changeText = (event) => {
-        updateText(event.target.value);
+        updateLine({ text: event.target.value });
     };
 
     const changeSelection = (event) => {
-        updateSelection(event.target.value);
+        updateLine({ mood: event.target.value });
     };
 
 
@@ -23,7 +27,7 @@ export default function LineInput({ label, selection, updateText, updateSelectio
         <React.Fragment>
             <Grid item xs={9}>
                 <FormControl fullWidth>
-                    <TextField label={label} variant="outlined" onChange={changeText} />
+                    <TextField value={line.text} error={error} helperText={streamErrors(errorMessages)} label={label} variant="outlined" onChange={changeText} />
                 </FormControl>
             </Grid>
             <Grid item xs={3}>
@@ -33,14 +37,9 @@ export default function LineInput({ label, selection, updateText, updateSelectio
                         variant={'outlined'}
                         label="Mood"
                         onChange={changeSelection}
-                        // defaultValue={selection}
-                        value={selection}
+                        value={line.mood}
                     >
-                        <MenuItem value="">
-                            <em>None</em>
-                        </MenuItem>
                         {Moods.map((mood, index) => {
-                            console.log(index);
                             return (
                                 <MenuItem value={index} key={index}>{mood}</MenuItem>
                             );

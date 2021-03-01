@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, CssBaseline, Divider, List, ListItem, ListItemIcon, Drawer, Typography, ListItemText } from '@material-ui/core';
+import { AppBar, CssBaseline, Divider, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -55,9 +55,11 @@ const useStyles = makeStyles((theme) => ({
 export default function NavMenu({ routes, children }) {
     const classes = useStyles();
     const [title, setTitle] = useState("Home");
+    // Match base path title 
     let location = useLocation();
     useEffect(() => {
-        setTitle(routes[location.pathname].name);
+        let basePath = "/" + location.pathname.split("/")[1];
+        setTitle(routes[basePath].name);
         return () => {
         };
     }, [location, routes, title]);
@@ -87,7 +89,7 @@ export default function NavMenu({ routes, children }) {
                         {Object.values(routes).map((route, index) => (
                             <ListItem
                                 button
-                                exact
+                                exact={route.exact || false}
                                 component={NavLink}
                                 activeClassName={classes.activeNav}
                                 to={route.path}
