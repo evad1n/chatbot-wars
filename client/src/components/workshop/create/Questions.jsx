@@ -20,6 +20,8 @@ export default function Questions({ value, updateHandler: updateQuestions, setVa
 
     const validate = useCallback(
         () => {
+            setErrorMsgs1([]);
+            setErrorMsgs2([]);
             const validQuestion1 = question1.text.length > 0;
             const validQuestion2 = question2.text.length > 0;
             if (!validQuestion1) {

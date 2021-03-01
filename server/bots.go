@@ -114,9 +114,9 @@ func initBotsController(s *Server, collection *mongo.Collection, log *log.Logger
 			var bot Chatbot
 			if err := c.ShouldBindJSON(&bot); err != nil {
 				if errs, ok := err.(validator.ValidationErrors); ok {
-					c.JSON(http.StatusBadRequest, gin.H{"errors": s.ValidationMessages(errs)})
+					c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": s.ValidationMessages(errs)})
 				} else {
-					c.String(http.StatusBadRequest, err.Error())
+					c.String(http.StatusUnprocessableEntity, err.Error())
 				}
 				return
 			}
@@ -156,8 +156,12 @@ func initBotsController(s *Server, collection *mongo.Collection, log *log.Logger
 
 			// Bind request body
 			var updatedBot Chatbot
-			if err := c.BindJSON(&updatedBot); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			if err := c.ShouldBindJSON(&updatedBot); err != nil {
+				if errs, ok := err.(validator.ValidationErrors); ok {
+					c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": s.ValidationMessages(errs)})
+				} else {
+					c.String(http.StatusUnprocessableEntity, err.Error())
+				}
 				return
 			}
 

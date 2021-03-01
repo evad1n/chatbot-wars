@@ -47,7 +47,7 @@ export default function Create() {
     const createBot = async () => {
         const bot = {
             name: name,
-            greetings: greetings,
+            greetings: [greetings],
             questions: questions,
             responses: responses,
         };

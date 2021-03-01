@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -34,7 +35,9 @@ func createServer() (Server, error) {
 	// Default has logger and debug mode
 	s.Router = gin.Default()
 
-	validateJSONTags()
+	s.Router.Use(cors.Default())
+
+	setValidateJSONTags()
 
 	// Register routes
 	s.registerRoutes()
@@ -59,7 +62,7 @@ func (s *Server) timeoutCtx(c *gin.Context) (context.Context, context.CancelFunc
 }
 
 // Validation errors will print the JSON field name, not the struct field name
-func validateJSONTags() {
+func setValidateJSONTags() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterTagNameFunc(func(fld reflect.StructField) string {
 			name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]

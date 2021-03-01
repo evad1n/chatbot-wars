@@ -23,7 +23,7 @@ export default function Greetings({ value, updateHandler: updateGreetings, setVa
                 setError(true);
                 addErrorMessage(errorMsgs, badLength, setErrorMsgs);
             }
-            updateGreetings(greeting);
+            updateGreetings([greeting]);
             return validGreeting;
         },
         [greeting, updateGreetings, errorMsgs],
