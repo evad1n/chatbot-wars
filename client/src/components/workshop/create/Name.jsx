@@ -37,7 +37,7 @@ export default function Name({ value, updateHandler: updateName, setValidator })
             </Grid>
             <Grid item xs={12}>
                 <FormControl fullWidth>
-                    <TextField error={error} helperText={error ? errorMessage : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
+                    <TextField autoFocus error={error} helperText={error ? errorMessage : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
                 </FormControl>
             </Grid>
         </Grid>

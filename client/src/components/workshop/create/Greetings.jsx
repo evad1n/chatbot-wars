@@ -4,29 +4,25 @@ import LineInput from './LineInput';
 
 const badLength = "Greeting must be non-empty";
 
-const addErrorMessage = (start, add, handler) => {
-    let nextMsgs = start;
-    nextMsgs.push(add);
-    handler(nextMsgs);
-};
-
 export default function Greetings({ value, updateHandler: updateGreetings, setValidator }) {
-    const [greeting, setGreeting] = useState(value);
+    const [greeting, setGreeting] = useState(value[0]);
     const [error, setError] = useState(false);
     const [errorMsgs, setErrorMsgs] = useState([]);
 
 
     const validate = useCallback(
         () => {
+            let errorMessages = [];
             const validGreeting = greeting.text.length > 0;
             if (!validGreeting) {
                 setError(true);
-                addErrorMessage(errorMsgs, badLength, setErrorMsgs);
+                errorMessages.push(badLength);
             }
+            setErrorMsgs(errorMessages);
             updateGreetings([greeting]);
             return validGreeting;
         },
-        [greeting, updateGreetings, errorMsgs],
+        [greeting, updateGreetings],
     );
 
     useEffect(() => {
@@ -45,7 +41,7 @@ export default function Greetings({ value, updateHandler: updateGreetings, setVa
             <Grid item xs={12} >
                 <Typography variant={'h5'} align={'center'}>What's your bot gonna say prior to embarassing your foes?</Typography>
             </Grid>
-            <LineInput error={error} errorMessages={error ? errorMsgs : []} label="Greeting" line={greeting} updateLine={changeGreeting} />
+            <LineInput autoFocus error={error} errorMessages={errorMsgs} label="Greeting" line={greeting} updateLine={changeGreeting} />
         </Grid>
     );
 }

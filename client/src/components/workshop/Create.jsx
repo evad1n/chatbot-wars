@@ -8,12 +8,11 @@ import Typography from '@material-ui/core/Typography';
 import API from 'api';
 import Finalize from 'components/workshop/create/Finalize';
 import Greetings from 'components/workshop/create/Greetings';
-// Forms
 import Name from 'components/workshop/create/Name';
 import Questions from 'components/workshop/create/Questions';
 import Responses from 'components/workshop/create/Responses';
 import React, { useState } from 'react';
-
+import { Link as RouterLink } from 'react-router-dom';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -29,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
     stepContent: {
         marginTop: 20,
         flexGrow: 1,
+        textAlign: "center",
     },
     stepButton: {
         alignSelf: "flex-end",
@@ -55,6 +55,7 @@ export default function Create() {
 
         let response = await API.post('/bots', bot);
         // Should log ID here
+        setBotID(response.data.id);
         console.log(JSON.stringify(response.data));
     };
 
@@ -99,11 +100,12 @@ export default function Create() {
     }
 
     const [name, setName] = useState("");
-    const [greetings, setGreetings] = useState(
+    const [greetings, setGreetings] = useState([
         {
             text: "",
             mood: 0
-        });
+        }
+    ]);
     const [questions, setQuestions] = useState([
         {
             text: "",
@@ -124,6 +126,7 @@ export default function Create() {
             mood: 0
         }
     ]);
+    const [botID, setBotID] = useState(null);
 
     const lastStep = () => {
         return activeStep === steps.length - 1;
@@ -158,14 +161,15 @@ export default function Create() {
             title: "Finalize",
             component: Finalize,
             value: name,
-            handler: null
+            handler: null,
+            validate: () => true
         },
     ];
 
 
     return (
         <div className={classes.root}>
-            <Stepper alternativeLabel nonLinear activeStep={activeStep}>
+            {!allStepsCompleted() && (<Stepper alternativeLabel nonLinear activeStep={activeStep}>
                 {steps.map((step, index) => {
                     const stepProps = {};
                     const buttonProps = {};
@@ -182,15 +186,19 @@ export default function Create() {
                         </Step>
                     );
                 })}
-            </Stepper>
+            </Stepper>)}
             <Grid container spacing={3} className={classes.stepContent}>
                 {allStepsCompleted() ? (
-                    <div>
-                        <Typography className={classes.instructions}>
-                            Bot created successfully!
+                    <React.Fragment>
+                        <Grid item xs={12}>
+                            <Typography variant={'h4'}>
+                                Bot created successfully!
                         </Typography>
-                        <Button>sdasd</Button>
-                    </div>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button to={`/workshop/edit/${botID}`} component={RouterLink} variant={'contained'} color={'secondary'}>See it in the workshop</Button>
+                        </Grid>
+                    </React.Fragment>
                 ) : (
                         <React.Fragment>
                             <Grid item xs={12} style={{ flexGrow: 1 }}>

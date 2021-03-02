@@ -14,6 +14,12 @@ export default function Arena() {
 
     // Use useEffect to subscribe to a room on the server
     // https://reactjs.org/docs/hooks-effect.html
+    useEffect(() => {
+
+        return () => {
+
+        };
+    }, []);
 
     return (
         <div>

@@ -6,7 +6,8 @@ import { Link as RouterLink } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     title: {
-        fontSize: 30
+        padding: "10%",
+        fontSize: 40
     },
     directions: {
         fontSize: 20
@@ -19,7 +20,7 @@ export default function Entrance() {
 
     return (
         <React.Fragment>
-            <Grid container spacing={3}>
+            <Grid container spacing={3} direction={'row'}>
                 <Grid item xs={12} >
                     <Typography className={classes.title} align={'center'}>WELCOME TO THE WORKSHOP</Typography>
                 </Grid>
@@ -36,8 +37,6 @@ export default function Entrance() {
                     <Button component={RouterLink} to={'/workshop/edit'} style={{ fontSize: 20 }} fullWidth size="large" variant="contained" color="secondary">Edit</Button>
                 </Grid>
             </Grid>
-
-
         </React.Fragment>
     );
 }

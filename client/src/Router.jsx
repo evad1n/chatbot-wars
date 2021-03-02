@@ -11,6 +11,7 @@ import { Home as HomeIcon, Build, Forum } from '@material-ui/icons';
 import Create from 'components/workshop/Create';
 import Edit from 'components/workshop/Edit';
 import Entrance from 'components/workshop/Entrance';
+import BotDetail from 'components/workshop/edit/BotDetail';
 
 
 export const routes = {
@@ -38,6 +39,10 @@ export const routes = {
             {
                 path: "/workshop/edit",
                 component: Edit
+            },
+            {
+                path: "/workshop/edit/:id",
+                component: BotDetail
             }
         ]
     },

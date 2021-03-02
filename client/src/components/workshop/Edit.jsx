@@ -1,8 +1,8 @@
-import { Button, Grid, IconButton, List, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, ListSubheader, Typography } from '@material-ui/core';
-import React, { useState, useEffect } from 'react';
-import API from 'api';
-import DeleteIcon from '@material-ui/icons/Delete';
+import { Button, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, ListSubheader, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import DeleteIcon from '@material-ui/icons/Delete';
+import API from 'api';
+import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
 
@@ -49,7 +49,7 @@ export default function Edit() {
                                 Available bots
                     </ListSubheader>
                             {bots.map((bot, index) => (
-                                <ListItem button key={index}>
+                                <ListItem component={RouterLink} to={`/workshop/edit/${bot.id}`} button key={index}>
                                     <ListItemText primary={bot.name} />
                                     <ListItemSecondaryAction>
                                         <IconButton className={classes.delete} onClick={() => deleteBot(bot.id)}>

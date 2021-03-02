@@ -2,13 +2,7 @@ import { Grid, Typography } from '@material-ui/core';
 import React, { useState, useCallback, useEffect } from 'react';
 import LineInput from './LineInput';
 
-const badLength = "Greeting must be non-empty";
-
-const addErrorMessage = (start, add, handler) => {
-    let nextMsgs = start;
-    nextMsgs.push(add);
-    handler(nextMsgs);
-};
+const badLength = "Response must be non-empty";
 
 export default function Responses({ value, updateHandler: updateResponses, setValidator }) {
     const [response1, setResponse1] = useState(value[0]);
@@ -20,20 +14,27 @@ export default function Responses({ value, updateHandler: updateResponses, setVa
 
     const validate = useCallback(
         () => {
+            setError1(false);
+            setError2(false);
+            let errorMessages1 = [];
+            let errorMessages2 = [];
+
             const validResponse1 = response1.text.length > 0;
             const validResponse2 = response2.text.length > 0;
             if (!validResponse1) {
+                errorMessages1.push(badLength);
                 setError1(true);
-                addErrorMessage(errorMsgs1, badLength, setErrorMsgs1);
             }
             if (!validResponse2) {
+                errorMessages2.push(badLength);
                 setError2(true);
-                addErrorMessage(errorMsgs2, badLength, setErrorMsgs2);
             }
+            setErrorMsgs1(errorMessages1);
+            setErrorMsgs2(errorMessages2);
             updateResponses([response1, response2]);
             return validResponse1 && validResponse2;
         },
-        [response1, response2, updateResponses, errorMsgs1, errorMsgs2],
+        [response1, response2, updateResponses],
     );
 
     useEffect(() => {
@@ -59,8 +60,8 @@ export default function Responses({ value, updateHandler: updateResponses, setVa
             <Grid item xs={12} >
                 <Typography variant={'h5'} align={'center'}>Time for some trash talk</Typography>
             </Grid>
-            <LineInput label="Response 1" error={error1} errorMessages={error1 ? errorMsgs1 : []} line={response1} updateLine={changeResponse1} />
-            <LineInput label="Response 2" error={error2} errorMessages={error2 ? errorMsgs2 : []} line={response2} updateLine={changeResponse2} />
+            <LineInput autoFocus label="Response 1" error={error1} errorMessages={errorMsgs1} line={response1} updateLine={changeResponse1} />
+            <LineInput label="Response 2" error={error2} errorMessages={errorMsgs2} line={response2} updateLine={changeResponse2} />
         </Grid>
     );
 }

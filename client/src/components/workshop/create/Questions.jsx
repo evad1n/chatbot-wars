@@ -2,13 +2,7 @@ import { Grid, Typography } from '@material-ui/core';
 import React, { useState, useCallback, useEffect } from 'react';
 import LineInput from './LineInput';
 
-const badLength = "Greeting must be non-empty";
-
-const addErrorMessage = (start, add, handler) => {
-    let nextMsgs = start;
-    nextMsgs.push(add);
-    handler(nextMsgs);
-};
+const badLength = "Question must be non-empty";
 
 export default function Questions({ value, updateHandler: updateQuestions, setValidator }) {
     const [question1, setQuestion1] = useState(value[0]);
@@ -20,22 +14,27 @@ export default function Questions({ value, updateHandler: updateQuestions, setVa
 
     const validate = useCallback(
         () => {
-            setErrorMsgs1([]);
-            setErrorMsgs2([]);
+            setError1(false);
+            setError2(false);
+            let errorMessages1 = [];
+            let errorMessages2 = [];
+
             const validQuestion1 = question1.text.length > 0;
             const validQuestion2 = question2.text.length > 0;
             if (!validQuestion1) {
+                errorMessages1.push(badLength);
                 setError1(true);
-                addErrorMessage(errorMsgs1, badLength, setErrorMsgs1);
             }
             if (!validQuestion2) {
+                errorMessages2.push(badLength);
                 setError2(true);
-                addErrorMessage(errorMsgs2, badLength, setErrorMsgs2);
             }
+            setErrorMsgs1(errorMessages1);
+            setErrorMsgs2(errorMessages2);
             updateQuestions([question1, question2]);
             return validQuestion1 && validQuestion2;
         },
-        [question1, question2, updateQuestions, errorMsgs1, errorMsgs2],
+        [question1, question2, updateQuestions],
     );
 
     useEffect(() => {
@@ -61,8 +60,8 @@ export default function Questions({ value, updateHandler: updateQuestions, setVa
             <Grid item xs={12} >
                 <Typography variant={'h5'} align={'center'}>Everyone needs a conversation starter</Typography>
             </Grid>
-            <LineInput label="Question 1" error={error1} errorMessages={error1 ? errorMsgs1 : []} line={question1} updateLine={changeQuestion1} />
-            <LineInput label="Question 2" error={error2} errorMessages={error2 ? errorMsgs2 : []} line={question2} updateLine={changeQuestion2} />
+            <LineInput autoFocus label="Question 1" error={error1} errorMessages={errorMsgs1} line={question1} updateLine={changeQuestion1} />
+            <LineInput label="Question 2" error={error2} errorMessages={errorMsgs2} line={question2} updateLine={changeQuestion2} />
         </Grid>
     );
 }

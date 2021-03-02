@@ -12,7 +12,7 @@ const streamErrors = (msgs) => {
     return msgs.join("\n");
 };
 
-export default function LineInput({ error, errorMessages, label, line, updateLine }) {
+export default function LineInput({ autoFocus, error, errorMessages, label, line, updateLine }) {
 
     const changeText = (event) => {
         updateLine({ text: event.target.value });
@@ -27,7 +27,7 @@ export default function LineInput({ error, errorMessages, label, line, updateLin
         <React.Fragment>
             <Grid item xs={9}>
                 <FormControl fullWidth>
-                    <TextField value={line.text} error={error} helperText={streamErrors(errorMessages)} label={label} variant="outlined" onChange={changeText} />
+                    <TextField autoFocus={autoFocus || false} value={line.text} error={error} helperText={streamErrors(errorMessages)} label={label} variant="outlined" onChange={changeText} />
                 </FormControl>
             </Grid>
             <Grid item xs={3}>

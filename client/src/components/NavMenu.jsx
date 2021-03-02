@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
     },
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
-        backgroundColor: theme.palette.primary.main
+        backgroundColor: theme.palette.primary.dark
     },
     appBarLeft: {
         width: drawerWidth,
@@ -43,12 +43,12 @@ const useStyles = makeStyles((theme) => ({
         }
     },
     content: {
-        paddingTop: theme.layout.nav.appBarHeight + 10,
-        padding: theme.spacing(3),
+        paddingTop: theme.layout.nav.appBarHeight,
         flexGrow: 1,
-        minHeight: "100vh",
+        height: "100vh",
         display: "flex",
-        flexDirection: 'column'
+        flexDirection: 'column',
+        overflowX: "hidden"
     },
 }));
 
