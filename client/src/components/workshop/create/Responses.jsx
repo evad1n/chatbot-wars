@@ -4,7 +4,7 @@ import LineInput from './LineInput';
 
 const badLength = "Response must be non-empty";
 
-export default function Responses({ value, updateHandler: updateResponses, setValidator }) {
+export default function Responses({ value, updateHandler: updateResponses, setValidator, titleStyle }) {
     const [response1, setResponse1] = useState(value[0]);
     const [response2, setResponse2] = useState(value[1]);
     const [error1, setError1] = useState(false);
@@ -56,12 +56,12 @@ export default function Responses({ value, updateHandler: updateResponses, setVa
     };
 
     return (
-        <Grid container spacing={3}>
-            <Grid item xs={12} >
+        <React.Fragment>
+            <Grid item xs={12} style={titleStyle}>
                 <Typography variant={'h5'} align={'center'}>Time for some trash talk</Typography>
             </Grid>
             <LineInput autoFocus label="Response 1" error={error1} errorMessages={errorMsgs1} line={response1} updateLine={changeResponse1} />
             <LineInput label="Response 2" error={error2} errorMessages={errorMsgs2} line={response2} updateLine={changeResponse2} />
-        </Grid>
+        </React.Fragment>
     );
 }

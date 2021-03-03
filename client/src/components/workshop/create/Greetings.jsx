@@ -4,7 +4,7 @@ import LineInput from './LineInput';
 
 const badLength = "Greeting must be non-empty";
 
-export default function Greetings({ value, updateHandler: updateGreetings, setValidator }) {
+export default function Greetings({ value, updateHandler: updateGreetings, setValidator, titleStyle }) {
     const [greeting, setGreeting] = useState(value[0]);
     const [error, setError] = useState(false);
     const [errorMsgs, setErrorMsgs] = useState([]);
@@ -37,11 +37,11 @@ export default function Greetings({ value, updateHandler: updateGreetings, setVa
     };
 
     return (
-        <Grid container spacing={3}>
-            <Grid item xs={12} >
+        <React.Fragment>
+            <Grid item xs={12} style={titleStyle}>
                 <Typography variant={'h5'} align={'center'}>What's your bot gonna say prior to embarassing your foes?</Typography>
             </Grid>
             <LineInput autoFocus error={error} errorMessages={errorMsgs} label="Greeting" line={greeting} updateLine={changeGreeting} />
-        </Grid>
+        </React.Fragment>
     );
 }

@@ -4,7 +4,7 @@ import LineInput from './LineInput';
 
 const badLength = "Question must be non-empty";
 
-export default function Questions({ value, updateHandler: updateQuestions, setValidator }) {
+export default function Questions({ value, updateHandler: updateQuestions, setValidator, titleStyle }) {
     const [question1, setQuestion1] = useState(value[0]);
     const [question2, setQuestion2] = useState(value[1]);
     const [error1, setError1] = useState(false);
@@ -56,12 +56,12 @@ export default function Questions({ value, updateHandler: updateQuestions, setVa
     };
 
     return (
-        <Grid container spacing={3}>
-            <Grid item xs={12} >
+        <React.Fragment>
+            <Grid item xs={12} style={titleStyle}>
                 <Typography variant={'h5'} align={'center'}>Everyone needs a conversation starter</Typography>
             </Grid>
             <LineInput autoFocus label="Question 1" error={error1} errorMessages={errorMsgs1} line={question1} updateLine={changeQuestion1} />
             <LineInput label="Question 2" error={error2} errorMessages={errorMsgs2} line={question2} updateLine={changeQuestion2} />
-        </Grid>
+        </React.Fragment>
     );
 }

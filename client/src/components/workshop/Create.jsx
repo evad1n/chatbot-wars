@@ -20,15 +20,21 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: '100%',
         display: "flex",
-        flexDirection: 'column'
+        flexDirection: 'column',
+        padding: 20
     },
     activeStep: {
         color: theme.palette.success.light
     },
-    stepContent: {
-        marginTop: 20,
+    stepContainer: {
+        padding: 20,
         flexGrow: 1,
         textAlign: "center",
+    },
+    stepContent: {
+        flexGrow: 1,
+        padding: "0 !important",
+        alignContent: "flex-start"
     },
     stepButton: {
         alignSelf: "flex-end",
@@ -43,21 +49,6 @@ export default function Create() {
     const classes = useStyles();
     const [activeStep, setActiveStep] = useState(0);
     const [completed, setCompleted] = useState(new Set());
-
-    const createBot = async () => {
-        const bot = {
-            name: name,
-            greetings: [greetings],
-            questions: questions,
-            responses: responses,
-        };
-        console.log(bot);
-
-        let response = await API.post('/bots', bot);
-        // Should log ID here
-        setBotID(response.data.id);
-        console.log(JSON.stringify(response.data));
-    };
 
     const allStepsCompleted = () => {
         return completed.size === steps.length;
@@ -99,6 +90,11 @@ export default function Create() {
         return completed.has(step);
     }
 
+    const lastStep = () => {
+        return activeStep === steps.length - 1;
+    };
+
+    const [botID, setBotID] = useState(null);
     const [name, setName] = useState("");
     const [greetings, setGreetings] = useState([
         {
@@ -126,11 +122,6 @@ export default function Create() {
             mood: 0
         }
     ]);
-    const [botID, setBotID] = useState(null);
-
-    const lastStep = () => {
-        return activeStep === steps.length - 1;
-    };
 
     const steps = [
         {
@@ -166,6 +157,21 @@ export default function Create() {
         },
     ];
 
+    const createBot = async () => {
+        const bot = {
+            name: name,
+            greetings: greetings,
+            questions: questions,
+            responses: responses,
+        };
+        console.log(bot);
+
+        let response = await API.post('/bots', bot);
+        // Should log ID here
+        setBotID(response.data.id);
+        console.log(JSON.stringify(response.data));
+    };
+
 
     return (
         <div className={classes.root}>
@@ -187,7 +193,7 @@ export default function Create() {
                     );
                 })}
             </Stepper>)}
-            <Grid container spacing={3} className={classes.stepContent}>
+            <Grid container direction={'row'} spacing={3} className={classes.stepContainer}>
                 {allStepsCompleted() ? (
                     <React.Fragment>
                         <Grid item xs={12}>
@@ -201,13 +207,14 @@ export default function Create() {
                     </React.Fragment>
                 ) : (
                         <React.Fragment>
-                            <Grid item xs={12} style={{ flexGrow: 1 }}>
+                            <Grid container spacing={3} item xs={12} className={classes.stepContent}>
                                 {React.createElement(
                                     steps[activeStep].component,
                                     {
                                         value: steps[activeStep].value,
                                         updateHandler: steps[activeStep].handler,
-                                        setValidator: (validator => steps[activeStep].validate = validator)
+                                        setValidator: (validator => steps[activeStep].validate = validator),
+                                        titleStyle: { padding: "30px 0px" }
                                     },
                                 )}
                             </Grid>

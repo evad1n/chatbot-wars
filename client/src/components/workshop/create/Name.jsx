@@ -1,11 +1,9 @@
 import { FormControl, Grid, TextField, Typography } from '@material-ui/core';
 import React, { useState, useEffect, useCallback } from 'react';
 
-const errorMessage = [
-    "Name must be between 3 and 30 characters"
-];
+const badLength = "Name must be between 3 and 30 characters";
 
-export default function Name({ value, updateHandler: updateName, setValidator }) {
+export default function Name({ value, updateHandler: updateName, setValidator, titleStyle }) {
     const [name, setName] = useState(value);
     const [error, setError] = useState(false);
 
@@ -31,15 +29,15 @@ export default function Name({ value, updateHandler: updateName, setValidator })
     };
 
     return (
-        <Grid container spacing={3}>
-            <Grid item xs={12} >
+        <React.Fragment>
+            <Grid item xs={12} style={titleStyle}>
                 <Typography variant={'h5'} align={'center'}>First thing's first, give your bot a name</Typography>
             </Grid>
             <Grid item xs={12}>
                 <FormControl fullWidth>
-                    <TextField autoFocus error={error} helperText={error ? errorMessage : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
+                    <TextField autoFocus error={error} helperText={error ? badLength : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
                 </FormControl>
             </Grid>
-        </Grid>
+        </React.Fragment>
     );
 }

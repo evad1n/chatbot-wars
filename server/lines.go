@@ -87,22 +87,12 @@ func initLinesController(s *Server, collection *mongo.Collection, log *log.Logge
 			update := bson.M{"$push": bson.M{fmt.Sprintf("%s", lineType): line}}
 			_, err = collection.UpdateOne(ctx, filter, update)
 			if err != nil {
-				log.Printf("Line update: unsetting: %v\n", err)
+				log.Printf("Line post: updating: %v\n", err)
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
 
-			// Now add it
-			res, err := collection.InsertOne(ctx, line)
-			if err != nil {
-				log.Printf("PostOne: inserting: %v\n", err)
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
-
-			c.JSON(http.StatusCreated, gin.H{
-				"id": res.InsertedID,
-			})
+			c.Status(http.StatusOK)
 		}
 	}
 
@@ -132,14 +122,10 @@ func initLinesController(s *Server, collection *mongo.Collection, log *log.Logge
 				return
 			}
 
-			// db.lists.update({}, {$unset : {"interests.3" : 1 }})
-			// db.lists.update({}, {$pull : {"interests" : null}})
 			index, err := strconv.Atoi(c.Param("index"))
 			if err != nil {
 				c.String(http.StatusUnprocessableEntity, "index value must be a number")
 			}
-
-			log.Printf("deleting from %s index %d\n", lineType, index)
 
 			// Stupid workaround to delete by index
 			// First set at index to nil

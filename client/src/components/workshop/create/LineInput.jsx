@@ -30,7 +30,7 @@ export default function LineInput({ autoFocus, error, errorMessages, label, line
                     <TextField autoFocus={autoFocus || false} value={line.text} error={error} helperText={streamErrors(errorMessages)} label={label} variant="outlined" onChange={changeText} />
                 </FormControl>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={3} >
                 <FormControl variant="outlined" fullWidth>
                     <InputLabel>Mood</InputLabel>
                     <Select
