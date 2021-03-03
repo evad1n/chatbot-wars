@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function BotDetail({ lines, update }) {
+export default function BotDetail() {
     const classes = useStyles();
 
     const [tab, setTab] = React.useState(0);
@@ -21,10 +21,10 @@ export default function BotDetail({ lines, update }) {
     const { id } = useParams();
 
     // Fetch bot data
-    // const getBotData = async () => {
-    //     let response = await API.get(`/bots/${id}`);
-    //     setBot(response.data);
-    // };
+    const getBotData = async () => {
+        let response = await API.get(`/bots/${id}`);
+        setBot(response.data);
+    };
 
     // Initial load
     useEffect(() => {
@@ -60,13 +60,13 @@ export default function BotDetail({ lines, update }) {
                     <h1>{bot.name}</h1>
                 </TabPanel>
                 <TabPanel value={tab} index={1}>
-                    <LineTable lines={bot.greetings} />
+                    <LineTable botID={bot.id} lineType={"greetings"} lines={bot.greetings} refresh={getBotData} />
                 </TabPanel>
                 <TabPanel value={tab} index={2}>
-                    <LineTable lines={bot.questions} />
+                    <LineTable botID={bot.id} lineType={"questions"} lines={bot.questions} refresh={getBotData} />
                 </TabPanel>
                 <TabPanel value={tab} index={3}>
-                    <LineTable lines={bot.responses} />
+                    <LineTable botID={bot.id} lineType={"responses"} lines={bot.responses} refresh={getBotData} />
                 </TabPanel>
             </React.Fragment>
         </React.Fragment>

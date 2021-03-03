@@ -15,6 +15,10 @@ func (s *Server) registerRoutes() {
 	s.Router.POST("/bots", s.Controllers["bots"].PostOne(s))
 	s.Router.PUT("/bots/:id", s.Controllers["bots"].UpdateOne(s))
 	s.Router.DELETE("/bots/:id", s.Controllers["bots"].DeleteOne(s))
+	// Modify lines
+	s.Router.POST("/bots/:id/:lineType/", s.Controllers["lines"].PostOne(s))
+	s.Router.DELETE("/bots/:id/:lineType/:index", s.Controllers["lines"].DeleteOne(s))
+	// Delete all bots
 	s.Router.DELETE("/DANGER/BAD", s.deleteAllBots())
 }
 

@@ -1,5 +1,7 @@
 import { IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { Refresh } from '@material-ui/icons';
 import DeleteIcon from '@material-ui/icons/Delete';
+import API from 'api';
 import React from 'react';
 
 const useStyles = makeStyles((theme) => ({
@@ -9,6 +11,9 @@ const useStyles = makeStyles((theme) => ({
     table: {
         maxWidth: "100%",
     },
+    row: {
+        overflowWrap: 'anywhere'
+    },
     delete: {
         '&:hover': {
             color: "red"
@@ -16,47 +21,33 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const fake = [
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-    { text: "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd", mood: 2 },
-];
-
 const moods = [
     "Happy",
     "Angry",
     "Sad"
 ];
 
-export default function LineTable({ lines, update }) {
+export default function LineTable({ botID, lineType, lines, refresh }) {
     const classes = useStyles();
 
-    const deleteLine = (line) => {
-        console.log(line);
+    const deleteLine = async (index) => {
+        await API.delete(`/bots/${botID}/${lineType}/${index}`);
+        refresh();
     };
 
     return (
         <TableContainer className={classes.tableContainer} component={Paper}>
             <Table className={classes.table} stickyHeader>
+                <colgroup>
+                    <col style={{ width: '80%' }} />
+                    <col style={{ width: '10%' }} />
+                    <col style={{ width: '10%' }} />
+                </colgroup>
                 <TableHead>
                     <TableRow>
                         <TableCell align={'center'}>
-                            soe word
-                            </TableCell>
+                            Text
+                        </TableCell>
                         <TableCell align={'center'}>
                             Mood
                             </TableCell>
@@ -66,16 +57,16 @@ export default function LineTable({ lines, update }) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {fake.map((line, index) => (
-                        <TableRow hover>
-                            <TableCell align={'center'}>
+                    {lines.map((line, index) => (
+                        <TableRow hover key={index} className={classes.row}>
+                            <TableCell align={'left'}>
                                 {line.text}
                             </TableCell>
                             <TableCell align={'center'}>
                                 {moods[line.mood]}
                             </TableCell>
                             <TableCell align={'center'}>
-                                <IconButton className={classes.delete} onClick={() => deleteLine(line)}>
+                                <IconButton className={classes.delete} onClick={() => deleteLine(index)}>
                                     <DeleteIcon />
                                 </IconButton>
                             </TableCell>

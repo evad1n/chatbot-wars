@@ -22,21 +22,6 @@ type (
 		Questions []Line             `json:"questions" binding:"required,gte=2,dive"`
 		Responses []Line             `json:"responses" binding:"required,gte=2,dive"`
 	}
-
-	// Line is a Chatbot response with associated data
-	Line struct {
-		Text string `json:"text" binding:"required"`
-		Mood *Mood  `json:"mood" binding:"required,min=0,max=2"` // Should correspond to enum values
-	}
-
-	// Mood enum
-	Mood int
-)
-
-const (
-	happy Mood = iota
-	angry
-	sad
 )
 
 func initBotsController(s *Server, collection *mongo.Collection, log *log.Logger) Controller {
@@ -54,7 +39,7 @@ func initBotsController(s *Server, collection *mongo.Collection, log *log.Logger
 				c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 				return
 			}
-			filter := bson.D{{Key: "_id", Value: id}}
+			filter := bson.M{"_id": id}
 
 			res := collection.FindOne(ctx, filter)
 			// If no doc is found
@@ -146,7 +131,7 @@ func initBotsController(s *Server, collection *mongo.Collection, log *log.Logger
 				c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 				return
 			}
-			filter := bson.D{{Key: "_id", Value: id}}
+			filter := bson.M{"_id": id}
 
 			// Check if exists before even parsing data (404 > 400)
 			if collection.FindOne(ctx, filter).Err() != nil {
@@ -189,7 +174,7 @@ func initBotsController(s *Server, collection *mongo.Collection, log *log.Logger
 				return
 			}
 
-			filter := bson.D{{Key: "_id", Value: id}}
+			filter := bson.M{"_id": id}
 			res, err := collection.DeleteOne(ctx, filter)
 			if err != nil {
 				log.Printf("DeleteOne: deleting: %v\n", err)

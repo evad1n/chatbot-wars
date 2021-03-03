@@ -30,6 +30,7 @@ func createServer() (Server, error) {
 	// Register controllers
 	log.Println("REGISTERED CONTROLLERS")
 	s.registerController("bots", initBotsController, "bots")
+	s.registerController("lines", initLinesController, "bots")
 	fmt.Println()
 
 	// Default has logger and debug mode
