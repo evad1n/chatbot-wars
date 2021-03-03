@@ -25,8 +25,6 @@ export default function Edit() {
     useEffect(() => {
         const getBots = async () => {
             let response = await API.get('/bots');
-            // Should log ID here
-            console.log(JSON.stringify(response.data));
             setBots(response.data);
         };
         getBots();

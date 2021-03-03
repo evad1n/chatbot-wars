@@ -1,6 +1,6 @@
-import { AppBar, FormControl, Grid, makeStyles, Tab, Tabs, TextField, Typography } from '@material-ui/core';
+import { AppBar, Button, FormControl, Grid, makeStyles, Tab, Tabs, TextField, Typography } from '@material-ui/core';
 import API from 'api';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import LineTable from './LineTable';
 
@@ -16,8 +16,14 @@ const useStyles = makeStyles((theme) => ({
         height: "100%",
         flexGrow: 1
     },
-    general: {
-        textAlign: "center"
+    generalContainer: {
+        paddingTop: 30,
+        textAlign: "center",
+        flexGrow: 1,
+        alignContent: "flex-start"
+    },
+    generalSave: {
+        alignSelf: "flex-end",
     }
 }));
 
@@ -29,13 +35,14 @@ export default function BotDetail() {
     const [tab, setTab] = React.useState(0);
     const [bot, setBot] = useState({});
     const { id } = useParams();
-    const [name, setName] = useState(bot.name || "");
+    const [name, setName] = useState("");
 
     // General config
     const [error, setError] = useState(false);
 
     const validate = () => {
-        const validName = bot.name.length >= 3 && bot.name.length <= 30;
+        const validName = name.length >= 3 && name.length <= 30;
+        console.log(name);
         if (!validName) {
             setError(true);
         }
@@ -50,27 +57,29 @@ export default function BotDetail() {
     };
 
     // Fetch bot data
-    const getBotData = async () => {
-        let response = await API.get(`/bots/${id}`);
-        setBot(response.data);
-    };
+    const getBotData = useCallback(
+        async () => {
+            let response = await API.get(`/bots/${id}`);
+            setBot(response.data);
+            setName(response.data.name);
+        },
+        [id],
+    );
 
     // Fetch bot data
     const updateBot = async () => {
-        await API.put(`/bots/${id}`,
-            bot
+        await API.put(`/bots/${id}`, {
+            ...bot,
+            name: name
+        }
         );
         getBotData();
     };
 
     // Initial load
     useEffect(() => {
-        const getBotData = async () => {
-            let response = await API.get(`/bots/${id}`);
-            setBot(response.data);
-        };
         getBotData();
-    }, [id]);
+    }, [getBotData]);
 
     // Tab switching
     const handleChange = (event, newValue) => {
@@ -95,10 +104,15 @@ export default function BotDetail() {
             </AppBar>
             <React.Fragment>
                 <TabPanel value={tab} index={0} className={classes.general}>
-                    <Grid item xs={12}>
-                        <FormControl fullWidth>
-                            <TextField autoFocus error={error} helperText={error ? badLength : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
-                        </FormControl>
+                    <Grid container spacing={3} item xs={12} className={classes.generalContainer}>
+                        <Grid item xs={12}>
+                            <FormControl fullWidth>
+                                <TextField autoFocus error={error} helperText={error ? badLength : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                    <Grid item xs={12} className={classes.generalSave}>
+                        <Button onClick={validate} fullWidth size={'large'} variant={'contained'} color={'secondary'}>Save</Button>
                     </Grid>
                 </TabPanel>
                 <TabPanel value={tab} index={1}>

@@ -1,18 +1,23 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 )
 
-const (
+var (
 	host = ""
-	port = 8080
+	port string
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	log.SetFlags(log.Lshortfile | log.Ltime)
 
 	// Load environment variables
@@ -25,7 +30,7 @@ func main() {
 	}
 
 	// Listen and serve
-	server.Router.Run(host + ":" + fmt.Sprint(port))
+	server.Router.Run(host + ":" + port)
 }
 
 // Load env variables
