@@ -22,7 +22,7 @@ export default function Arena() {
     }, []);
 
     return (
-        <div>
+        <React.Fragment>
             <List dense>
                 {transcript.map((line, index) => {
                     return (
@@ -34,6 +34,6 @@ export default function Arena() {
                     );
                 })}
             </List>
-        </div>
+        </React.Fragment>
     );
 }
