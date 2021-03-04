@@ -9,13 +9,13 @@ cache:
 before_install: cd client
 install:
 - yarn
-before_script: cd ~
-script: build.sh
+- pwd
+before_script: pwd
+script: ./build.sh
 before_deploy:
 
 deploy:
   provider: heroku
-  skip-cleanup: true
   app: chatbot-wars
   target-branch: prod
   local-dir: dist
