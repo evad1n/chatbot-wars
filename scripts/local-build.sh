@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Build in client dir
-cd ../client
+cd ./client
 yarn build
 
 # Move to server folder
