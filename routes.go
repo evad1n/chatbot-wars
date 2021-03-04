@@ -10,16 +10,20 @@ import (
 
 // All the defined routes for the server
 func (s *Server) registerRoutes() {
-	s.Router.GET("/bots", s.Controllers["bots"].GetAll(s))
-	s.Router.GET("/bots/:id", s.Controllers["bots"].GetOne(s))
-	s.Router.POST("/bots", s.Controllers["bots"].PostOne(s))
-	s.Router.PUT("/bots/:id", s.Controllers["bots"].UpdateOne(s))
-	s.Router.DELETE("/bots/:id", s.Controllers["bots"].DeleteOne(s))
-	// Modify lines
-	s.Router.POST("/bots/:id/:lineType", s.Controllers["lines"].PostOne(s))
-	s.Router.DELETE("/bots/:id/:lineType/:index", s.Controllers["lines"].DeleteOne(s))
-	// Delete all bots
-	s.Router.DELETE("/DANGER/BAD", s.deleteAllBots())
+
+	api := s.Router.Group("/api")
+	{
+		api.GET("/bots", s.Controllers["bots"].GetAll(s))
+		api.GET("/bots/:id", s.Controllers["bots"].GetOne(s))
+		api.POST("/bots", s.Controllers["bots"].PostOne(s))
+		api.PUT("/bots/:id", s.Controllers["bots"].UpdateOne(s))
+		api.DELETE("/bots/:id", s.Controllers["bots"].DeleteOne(s))
+		// Modify lines
+		api.POST("/bots/:id/:lineType", s.Controllers["lines"].PostOne(s))
+		api.DELETE("/bots/:id/:lineType/:index", s.Controllers["lines"].DeleteOne(s))
+		// Delete all bots
+		api.DELETE("/DANGER/BAD", s.deleteAllBots())
+	}
 }
 
 // Temp funcs for developing

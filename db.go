@@ -20,8 +20,12 @@ const (
 
 // Connect to a mongo database, uses .env file with key "MONGO_PWD" for password
 func connectDB() (*mongo.Database, error) {
+	pwd := os.Getenv("MONGO_PWD")
+	if pwd == "" {
+		log.Fatalln("Can't find MONGO_PWD in environemnt variables")
+	}
 	// Connect to MongoDB
-	mongoURI := fmt.Sprintf("mongodb+srv://%s:%s@%s.vsqii.mongodb.net/%s?retryWrites=true&w=majority", username, os.Getenv("MONGO_PWD"), cluster, dbName)
+	mongoURI := fmt.Sprintf("mongodb+srv://%s:%s@%s.vsqii.mongodb.net/%s?retryWrites=true&w=majority", username, pwd, cluster, dbName)
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {

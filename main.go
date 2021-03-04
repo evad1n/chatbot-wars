@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 var (
@@ -20,9 +18,6 @@ func main() {
 
 	log.SetFlags(log.Lshortfile | log.Ltime)
 
-	// Load environment variables
-	loadENV()
-
 	// Create server
 	server, err := createServer()
 	if err != nil {
@@ -31,11 +26,4 @@ func main() {
 
 	// Listen and serve
 	server.Router.Run(host + ":" + port)
-}
-
-// Load env variables
-func loadENV() {
-	if err := godotenv.Load(".env"); err != nil {
-		log.Printf("error loading env variables: %v\n", err)
-	}
 }
