@@ -30,10 +30,4 @@ jobs:
     - name: Move build files to subdir
       run: ./package.sh
 
-    - name: Push build dir to prod
-    
-
-
-  push:
-    name: Push to prod branch
-    runs-on: ubuntu-latest
+    # - name: Push build dir to prod
