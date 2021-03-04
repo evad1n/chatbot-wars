@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -36,7 +37,7 @@ func createServer() (Server, error) {
 	// Default has logger and debug mode
 	s.Router = gin.Default()
 
-	// s.Router.Static("/public", "/var/www")
+	s.Router.Use(static.Serve("/", static.LocalFile("./public", true)))
 
 	s.Router.Use(cors.Default())
 
