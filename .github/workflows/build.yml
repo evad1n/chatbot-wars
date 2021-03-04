@@ -1,8 +1,11 @@
 name: build
 
-on:
-  push:
-    branches: [ main ]
+on: workflow_dispatch
+
+# Automatic on push
+# on:
+#   push:
+#     branches: [ main ]
 
 jobs:
 
