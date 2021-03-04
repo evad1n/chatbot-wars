@@ -9,6 +9,7 @@ cache:
 before_install: cd client
 install:
 - yarn
+before_script: cd ~
 script: build.sh
 before_deploy:
 
