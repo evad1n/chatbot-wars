@@ -4,7 +4,9 @@ branches:
 language: node_js
 node_js: node
 cache: yarn
-before_install: cd client
+before_install: 
+ - cd client
+ - ls
 install:
 - yarn
 before_script: 
@@ -12,7 +14,7 @@ before_script:
 - cd ~
 - pwd
 - ls
-script: build.sh
+script: bash build.sh
 before_deploy:
 
 deploy:
