@@ -36,6 +36,8 @@ func createServer() (Server, error) {
 	// Default has logger and debug mode
 	s.Router = gin.Default()
 
+	// s.Router.Static("/public", "/var/www")
+
 	s.Router.Use(cors.Default())
 
 	setValidateJSONTags()
