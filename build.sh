@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Build client
 yarn build
 echo "built"
@@ -6,3 +8,4 @@ echo "built"
 mv dist/ ~/public/
 
 pwd
+ls

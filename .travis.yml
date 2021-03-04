@@ -3,15 +3,16 @@ branches:
   - main
 language: node_js
 node_js: node
-cache:
-  directories:
-  - node_modules
+cache: yarn
 before_install: cd client
 install:
 - yarn
+before_script: 
 - pwd
-before_script: pwd
-script: ./build.sh
+- cd ~
+- pwd
+- ls
+script: build.sh
 before_deploy:
 
 deploy:
