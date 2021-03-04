@@ -1,0 +1,39 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  build:
+    name: Build for prod
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js 
+      uses: actions/setup-node@v2
+
+    - name: Install dependencies
+      run: yarn
+
+    - name: Build
+      run: yarn build
+
+    - name: Move build files to subdir
+      run: ./package.sh
+
+    - name: Push build dir to prod
+    
+
+
+  push:
+    name: Push to prod branch
+    runs-on: ubuntu-latest
