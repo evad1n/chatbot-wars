@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # Start @ repo root
+cd ..
 
 # Add frontend build to public
 mv ./client/build ./server/public

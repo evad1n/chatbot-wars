@@ -37,7 +37,8 @@ func createServer() (Server, error) {
 	// Default has logger and debug mode
 	s.Router = gin.Default()
 
-	s.Router.Use(static.Serve("/", static.LocalFile("./public", true)))
+	s.Router.Use(static.ServeRoot("/", "./public"))
+	// Using hashMode history so I don't have to use my brain
 
 	s.Router.Use(cors.Default())
 
