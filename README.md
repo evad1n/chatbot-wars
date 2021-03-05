@@ -6,6 +6,8 @@ Make a chatbot, watch it crash and burn
 
 [Assignment](http://cit.dixie.edu/cs/4200/assignments/midterm_project.xhtml)
 
+Design docs located in [design folder](./design/)
+
 ----
 
 ## Tech stack
@@ -29,6 +31,8 @@ Make a chatbot, watch it crash and burn
 ---
 ## Resource
 
+Bots is the only defined resource using MongoDB
+
 **Bots**
 - name (string)
 - greetings ([]Line)
@@ -38,6 +42,16 @@ Make a chatbot, watch it crash and burn
 Line
 - text (string)
 - mood (int)
+
+
+**For Rooms**
+
+Transcript
+- []Message
+
+Message
+- Name
+- Line
 
 ---
 ## API Endpoints
@@ -58,5 +72,14 @@ Delete bot                     | DELETE | /bots/*:id*
 
 Name                           | Method | Path
 -------------------------------|--------|------------------
-Add line to bot     | POST    | /bots/*:id*/*:lineType*
-Delete line from bot          | DELETE | /bots/*:id*/*:lineType*/*:index*
+Add line to bot                | POST   | /bots/*:id*/*:lineType*
+Delete line from bot           | DELETE | /bots/*:id*/*:lineType*/*:index*
+
+### **Rooms**
+
+Name                           | Method | Path
+-------------------------------|--------|------------------
+Create a room                  | POST   | /rooms
+Get transcript from a room     | GET    | /rooms/*:roomHash*
+Add a bot to a room            | PUT    | /rooms/*:roomHash*/*:botID*
+Delete a room                  | DELETE | /rooms/*:roomHash*
