@@ -1,4 +1,4 @@
-import { AppBar, Button, FormControl, Grid, makeStyles, Tab, Tabs, TextField, Typography } from '@material-ui/core';
+import { AppBar, Button, CircularProgress, FormControl, Grid, List, ListItem, ListItemText, makeStyles, Tab, Tabs, TextField, Typography } from '@material-ui/core';
 import API from 'api';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -24,6 +24,16 @@ const useStyles = makeStyles((theme) => ({
     },
     generalSave: {
         alignSelf: "flex-end",
+    },
+    errorList: {
+        textAlign: "center",
+        color: "red"
+    },
+    loading: {
+        display: "flex",
+        alignSelf: "center",
+        justifyContent: "center",
+        flexGrow: 1
     }
 }));
 
@@ -32,23 +42,45 @@ const badLength = "Name must be between 3 and 30 characters";
 export default function BotDetail() {
     const classes = useStyles();
 
+    const [loading, setLoading] = useState(true);
     const [tab, setTab] = React.useState(0);
     const [bot, setBot] = useState({});
     const { id } = useParams();
     const [name, setName] = useState("");
-
-    // General config
+    const [errorMessages, setErrorMessages] = useState([]);
     const [error, setError] = useState(false);
 
+    // General config
+    const [nameError, setNameError] = useState(false);
+
     const validate = () => {
+        let errorMsgs = [];
+
         const validName = name.length >= 3 && name.length <= 30;
-        console.log(name);
+        const validGreetings = bot.greetings.length >= 2;
+        const validQuestions = bot.questions.length >= 2;
+        const validResponses = bot.responses.length >= 2;
         if (!validName) {
+            setNameError(true);
+            setError(true);
+        }
+        if (!validGreetings) {
+            errorMsgs.push("Must have at least 1 greeting");
+            setError(true);
+        }
+        if (!validQuestions) {
+            errorMsgs.push("Must have at least 2 questions");
+            setError(true);
+        }
+        if (!validResponses) {
+            errorMsgs.push("Must have at least 2 responses");
             setError(true);
         }
 
-        if (!validName)
+        if (!validName || !validGreetings || !validQuestions || !validResponses) {
+            setErrorMessages(errorMsgs);
             return;
+        }
         updateBot();
     };
 
@@ -62,6 +94,7 @@ export default function BotDetail() {
             let response = await API.get(`/bots/${id}`);
             setBot(response.data);
             setName(response.data.name);
+            setLoading(false);
         },
         [id],
     );
@@ -91,41 +124,62 @@ export default function BotDetail() {
 
     return (
         <React.Fragment>
-            <Typography className={classes.name}>
-                {bot.name}
-            </Typography>
-            <AppBar position="static">
-                <Tabs value={tab} onChange={handleChange} variant={'fullWidth'}>
-                    <Tab label="General" />
-                    <Tab label="Greetings" />
-                    <Tab label="Questions" />
-                    <Tab label="Responses" />
-                </Tabs>
-            </AppBar>
-            <React.Fragment>
-                <TabPanel value={tab} index={0} className={classes.general}>
-                    <Grid container spacing={3} item xs={12} className={classes.generalContainer}>
-                        <Grid item xs={12}>
-                            <FormControl fullWidth>
-                                <TextField autoFocus error={error} helperText={error ? badLength : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
-                            </FormControl>
-                        </Grid>
-                    </Grid>
-                    <Grid item xs={12} className={classes.generalSave}>
-                        <Button onClick={validate} fullWidth size={'large'} variant={'contained'} color={'secondary'}>Save</Button>
-                    </Grid>
-                </TabPanel>
-                <TabPanel value={tab} index={1}>
-                    <LineTable botID={bot.id} lineType={"greetings"} lines={bot.greetings} refresh={getBotData} />
-                </TabPanel>
-                <TabPanel value={tab} index={2}>
-                    <LineTable botID={bot.id} lineType={"questions"} lines={bot.questions} refresh={getBotData} />
-                </TabPanel>
-                <TabPanel value={tab} index={3}>
-                    <LineTable botID={bot.id} lineType={"responses"} lines={bot.responses} refresh={getBotData} />
-                </TabPanel>
-            </React.Fragment>
-        </React.Fragment>
+            {loading ? (
+                <Grid container style={{ flexGrow: 1 }}>
+                    <Grid item xs={12} className={classes.loading}>
+                        <CircularProgress color="secondary" />
+                    </Grid >
+                </Grid >
+            ) : (
+                    <React.Fragment>
+                        <Typography className={classes.name}>
+                            {bot.name}
+                        </Typography>
+                        <AppBar position="static">
+                            <Tabs value={tab} onChange={handleChange} variant={'fullWidth'}>
+                                <Tab label="General" />
+                                <Tab label="Greetings" />
+                                <Tab label="Questions" />
+                                <Tab label="Responses" />
+                            </Tabs>
+                        </AppBar>
+                        <React.Fragment>
+                            <TabPanel value={tab} index={0} className={classes.general}>
+                                <Grid container spacing={3} item xs={12} className={classes.generalContainer}>
+                                    <Grid item xs={12}>
+                                        <FormControl fullWidth>
+                                            <TextField autoFocus error={nameError} helperText={nameError ? badLength : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
+                                        </FormControl>
+                                    </Grid>
+                                </Grid>
+                                {error && (
+                                    <Grid item xs={12} className={classes.errorList}>
+                                        <List subheader={"Please fix the following errors"}>
+                                            {errorMessages.map((msg, index) => (
+                                                <ListItem key={index}>
+                                                    <ListItemText primary={msg} className={classes.errorList} />
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    </Grid>
+                                )}
+                                <Grid item xs={12} className={classes.generalSave}>
+                                    <Button onClick={validate} fullWidth size={'large'} variant={'contained'} color={'secondary'}>Save</Button>
+                                </Grid>
+                            </TabPanel>
+                            <TabPanel value={tab} index={1}>
+                                <LineTable botID={bot.id} lineType={"greetings"} lines={bot.greetings} min={1} refresh={getBotData} />
+                            </TabPanel>
+                            <TabPanel value={tab} index={2}>
+                                <LineTable botID={bot.id} lineType={"questions"} lines={bot.questions} min={2} refresh={getBotData} />
+                            </TabPanel>
+                            <TabPanel value={tab} index={3}>
+                                <LineTable botID={bot.id} lineType={"responses"} lines={bot.responses} min={2} refresh={getBotData} />
+                            </TabPanel>
+                        </React.Fragment>
+                    </React.Fragment>
+                )
+            } </React.Fragment>
     );
 }
 

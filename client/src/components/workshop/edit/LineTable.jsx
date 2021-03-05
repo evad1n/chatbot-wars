@@ -1,18 +1,15 @@
-import { Button, Grid, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/Delete';
-import API from 'api';
+import { Button, Dialog, DialogActions, DialogTitle, Grid, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import API, { moods } from 'api';
 import React, { useState } from 'react';
 import LineInput from '../create/LineInput';
+import ConfirmModal from './ConfirmModal';
 
 const useStyles = makeStyles((theme) => ({
-    tableRow: {
+    container: {
         height: "70%"
     },
-    table: {
-        // maxWidth: "100%",
-    },
     row: {
-        overflowWrap: 'anywhere'
+        overflowWrap: 'break-word'
     },
     delete: {
         '&:hover': {
@@ -21,16 +18,10 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const moods = [
-    "Happy",
-    "Angry",
-    "Sad"
-];
-
 const badLength = "Question must be non-empty";
 
 
-export default function LineTable({ botID, lineType, lines, refresh }) {
+export default function LineTable({ botID, lineType, lines, min, refresh }) {
     const classes = useStyles();
     const [line, setLine] = useState({
         text: "",
@@ -38,6 +29,8 @@ export default function LineTable({ botID, lineType, lines, refresh }) {
     });
     const [error, setError] = useState(false);
     const [errorMsgs, setErrorMsgs] = useState([]);
+    const [open, setOpen] = useState(false);
+
 
     const changeLine = ({ text, mood }) => {
         setLine({
@@ -80,15 +73,27 @@ export default function LineTable({ botID, lineType, lines, refresh }) {
     };
 
     const deleteLine = async (index) => {
+        if (lines.length <= min) {
+            setOpen(true);
+            return;
+        }
         await API.delete(`/bots/${botID}/${lineType}/${index}`);
         refresh();
     };
 
     return (
         <React.Fragment>
-            <Grid item xs={12} className={classes.tableRow}>
+            <Dialog onClose={() => setOpen(false)} open={open}>
+                <DialogTitle>
+                    Must have at least {min} {lineType}
+                </DialogTitle>
+                <DialogActions style={{ justifyContent: "center" }}>
+                    <Button autoFocus onClick={() => setOpen(false)} color="primary">OK</Button>
+                </DialogActions>
+            </Dialog>
+            <Grid item xs={12} className={classes.container}>
                 <TableContainer component={Paper}>
-                    <Table className={classes.table} stickyHeader>
+                    <Table stickyHeader>
                         <colgroup>
                             <col style={{ width: '80%' }} />
                             <col style={{ width: '10%' }} />
@@ -117,9 +122,7 @@ export default function LineTable({ botID, lineType, lines, refresh }) {
                                         {moods[line.mood]}
                                     </TableCell>
                                     <TableCell align={'center'}>
-                                        <IconButton className={classes.delete} onClick={() => deleteLine(index)}>
-                                            <DeleteIcon />
-                                        </IconButton>
+                                        <ConfirmModal onConfirm={() => deleteLine(index)} type={"line"} />
                                     </TableCell>
                                 </TableRow>
                             ))}

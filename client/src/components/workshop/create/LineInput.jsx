@@ -1,12 +1,6 @@
 import { FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
 import React from 'react';
-
-
-const Moods = [
-    "Happy",
-    "Angry",
-    "Sad",
-];
+import { moods } from 'api';
 
 const streamErrors = (msgs) => {
     return msgs.join("\n");
@@ -39,7 +33,7 @@ export default function LineInput({ autoFocus, error, errorMessages, label, line
                         onChange={changeSelection}
                         value={line.mood}
                     >
-                        {Moods.map((mood, index) => {
+                        {moods.map((mood, index) => {
                             return (
                                 <MenuItem value={index} key={index}>{mood}</MenuItem>
                             );

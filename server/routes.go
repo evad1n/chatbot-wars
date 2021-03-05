@@ -13,5 +13,10 @@ func (s *Server) registerRoutes() {
 		// Modify lines
 		api.POST("/bots/:id/:lineType", s.Controllers["lines"].PostOne(s))
 		api.DELETE("/bots/:id/:lineType/:index", s.Controllers["lines"].DeleteOne(s))
+		// Fight rooms
+		api.POST("/rooms", s.Controllers["rooms"].PostOne(s))
+		api.GET("/rooms/:roomHash", s.Controllers["rooms"].GetOne(s))
+		api.PUT("/rooms/:roomHash/:botID", s.Controllers["rooms"].UpdateOne(s))
+		api.DELETE("/rooms/:roomHash", s.Controllers["rooms"].DeleteOne(s))
 	}
 }
