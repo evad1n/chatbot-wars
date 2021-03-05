@@ -14,7 +14,8 @@ type (
 		DB                 *mongo.Database
 		Router             *gin.Engine
 		Controllers        map[string]Controller // Named registered controllers
-		Timeout            int                   // How long to wait for requests (milliseconds)
+		Rooms              map[string]*Room
+		Timeout            int // How long to wait for requests (milliseconds)
 		ValidationMessages func(validator.ValidationErrors) []ValidationError
 	}
 

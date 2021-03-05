@@ -19,6 +19,7 @@ import (
 func createServer() (Server, error) {
 	s := Server{
 		Controllers:        make(map[string]Controller),
+		Rooms:              make(map[string]*Room),
 		Timeout:            5000,
 		ValidationMessages: validationErrorMessages,
 	}
@@ -32,12 +33,14 @@ func createServer() (Server, error) {
 	log.Println("REGISTERED CONTROLLERS")
 	s.registerController("bots", initBotsController, "bots")
 	s.registerController("lines", initLinesController, "bots")
+	s.registerController("rooms", initRoomsController, "bots")
 	fmt.Println()
 
 	// Default has logger and debug mode
 	s.Router = gin.Default()
 
-	s.Router.Use(static.Serve("/", static.LocalFile("./public", true)))
+	s.Router.Use(static.ServeRoot("/", "./public"))
+	// Using hashMode history so I don't have to use my brain
 
 	s.Router.Use(cors.Default())
 

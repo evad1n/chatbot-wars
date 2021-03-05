@@ -14,10 +14,10 @@ import (
 )
 
 type (
-	// Chatbot is
+	// Chatbot is a bot with a collection of lines
 	Chatbot struct {
 		ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-		Name      string             `json:"name" binding:"required,max=30"`
+		Name      string             `json:"name" binding:"required,min=3,max=30"`
 		Greetings []Line             `json:"greetings" binding:"required,gte=1,dive"`
 		Questions []Line             `json:"questions" binding:"required,gte=2,dive"`
 		Responses []Line             `json:"responses" binding:"required,gte=2,dive"`
