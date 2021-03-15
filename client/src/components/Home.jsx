@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
         flexGrow: 1
     },
     button: {
-        margin: "0 10%",
+        margin: "0 30%",
         marginTop: 20,
         marginBottom: 200,
         fontSize: 30,
