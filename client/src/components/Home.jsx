@@ -1,4 +1,4 @@
-import { Button, Container, Typography } from '@material-ui/core';
+import { Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
@@ -6,11 +6,11 @@ import { Link as RouterLink } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     container: {
-        // height: "100%",
         flex: 1,
         flexDirection: "column",
         fontSize: 30,
-        textAlign: "center"
+        textAlign: "center",
+        justifyContent: "space-around"
     },
     title: {
         marginTop: 30,
@@ -19,6 +19,13 @@ const useStyles = makeStyles((theme) => ({
     feature: {
         marginTop: 50,
         flexGrow: 1
+    },
+    button: {
+        margin: "0 10%",
+        marginTop: 20,
+        marginBottom: 200,
+        fontSize: 30,
+        padding: "20px 40px"
     }
 }));
 
@@ -26,17 +33,12 @@ export default function Landing() {
     const classes = useStyles();
 
     return (
-        <Container className={classes.container}>
+        <Grid container className={classes.container}>
             <Typography className={classes.title} variant={'h4'}>WELCOME TO CHATBOT WARS</Typography>
             <Typography variant={'h6'}>
                 Build your own chatbot. Watch it crash and burn.
             </Typography >
-            <Button style={{ marginTop: 20 }} variant={'contained'} color={'secondary'} component={RouterLink} to={'/workshop'}>Get Started</Button>
-            {/* <div className={classes.feature}>
-                <Typography variant={'h5'}>Fight of the Day</Typography>
-                <Arena />
-                <p>not yet...</p>
-            </div> */}
-        </Container>
+            <Button className={classes.button} size={'large'} variant={'contained'} color={'secondary'} component={RouterLink} to={'/workshop'}>Get Started</Button>
+        </Grid>
     );
 }

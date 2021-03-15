@@ -29,7 +29,7 @@ type (
 )
 
 const (
-	chatInterval = 4 // Add a line every x seconds
+	chatInterval = 1 // Add a line every x seconds
 	timeout      = 3 // timeout * chatInterval is the timeout threshold in seconds
 )
 
@@ -80,6 +80,7 @@ func initRoomsController(s *Server, collection *mongo.Collection, log *log.Logge
 			room, exists := s.Rooms[hash]
 			if !exists {
 				c.Status(http.StatusNotFound)
+				return
 			}
 			lines := room.Transcript
 
@@ -148,6 +149,13 @@ func initRoomsController(s *Server, collection *mongo.Collection, log *log.Logge
 
 func (r *Room) start(cleanup func()) {
 	defer cleanup()
+	// Prevent repeats
+	type lastLine struct {
+		Type  int
+		Index int
+	}
+	prevBotIdx := -1
+	repeatMap := make(map[int]lastLine)
 	// Timer for chat messages
 	for range time.Tick(time.Second * chatInterval) {
 		r.LastGet++
@@ -158,9 +166,27 @@ func (r *Room) start(cleanup func()) {
 		if len(r.Bots) == 0 {
 			continue
 		}
-		// Select random bot for random message
-		bot := r.Bots[rand.Intn(len(r.Bots))]
-		lineType := rand.Intn(3)
+		// Select new random bot for random message
+		var botIdx int
+		for {
+			botIdx = rand.Intn(len(r.Bots))
+			if len(r.Bots) == 1 || botIdx != prevBotIdx {
+				break
+			}
+		}
+		prevBotIdx = botIdx
+		bot := r.Bots[botIdx]
+
+		// Select new line type
+		var lineType int
+		last, exists := repeatMap[botIdx]
+		for {
+			lineType = rand.Intn(3)
+			if !exists || last.Type != lineType {
+				break
+			}
+		}
+
 		var lines []Line
 		switch lineType {
 		case 0:
@@ -170,7 +196,19 @@ func (r *Room) start(cleanup func()) {
 		case 2:
 			lines = bot.Responses
 		}
-		lineIndex := rand.Intn(len(lines))
+
+		// Select new line index
+		var lineIndex int
+		for {
+			lineIndex = rand.Intn(len(lines))
+			if !exists || len(lines) == 1 || last.Index != lineIndex {
+				break
+			}
+		}
+		repeatMap[botIdx] = lastLine{
+			Type:  lineType,
+			Index: lineIndex,
+		}
 		r.Transcript = append(r.Transcript, Message{
 			Name: bot.Name,
 			Line: lines[lineIndex],

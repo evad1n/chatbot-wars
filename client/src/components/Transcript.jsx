@@ -1,6 +1,6 @@
-import { Box, Divider, List, ListItem, makeStyles } from '@material-ui/core';
+import { Box, Divider, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
 import API, { moods } from 'api';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -15,10 +15,19 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function Transcript({ roomHash }) {
+export default function Transcript({ roomHash, scrollContainerRef }) {
     const classes = useStyles();
+    const scrollRef = useRef(null);
 
     const [transcript, setTranscript] = useState([]);
+
+    // Autoscroll
+    useEffect(() => {
+        const el = scrollContainerRef.current;
+        if (scrollRef.current && (el.scrollHeight - el.clientHeight) - el.scrollTop < 80) {
+            scrollRef.current.scrollIntoView({ behaviour: "smooth" });
+        }
+    }, [transcript.length, scrollContainerRef]);
 
     // Set timer loop for getting lines
     useEffect(() => {
@@ -36,17 +45,23 @@ export default function Transcript({ roomHash }) {
     return (
         <Box className={classes.container}>
             <List>
-                {transcript.map((msg, index) => (
-                    <React.Fragment key={index}>
-                        <ListItem>
-                            <Box className={"MuiListItemText-root MuiListItemText-multiline"}>
-                                <p className={"MuiTypography-root MuiListItemText-primary MuiTypography-body1 MuiTypography-displayBlock"}><strong>{msg.name}</strong>: {msg.line.text}</p>
-                                <p className={"MuiTypography-root MuiListItemText-secondary MuiTypography-body2 MuiTypography-colorTextSecondary MuiTypography-displayBlock"}>{moods[msg.line.mood]}</p>
-                            </Box>
-                        </ListItem>
-                        {index !== transcript.length - 1 && <Divider />}
-                    </React.Fragment>
-                ))}
+                {transcript.length === 0 ?
+                    <ListItem>
+                        <ListItemText primary={"Waiting for messages..."} />
+                    </ListItem>
+                    :
+                    transcript.map((msg, index) => (
+                        <React.Fragment key={index}>
+                            <ListItem ref={index === transcript.length - 1 ? scrollRef : null}>
+                                <Box className={"MuiListItemText-root MuiListItemText-multiline"}>
+                                    <p className={"MuiTypography-root MuiListItemText-primary MuiTypography-body1 MuiTypography-displayBlock"}><strong>{msg.name}</strong>: {msg.line.text}</p>
+                                    <p className={"MuiTypography-root MuiListItemText-secondary MuiTypography-body2 MuiTypography-colorTextSecondary MuiTypography-displayBlock"}>{moods[msg.line.mood]}</p>
+                                </Box>
+                            </ListItem>
+                            {index !== transcript.length - 1 && <Divider />}
+                        </React.Fragment>
+                    ))
+                }
             </List>
         </Box>
     );

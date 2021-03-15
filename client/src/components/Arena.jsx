@@ -1,6 +1,6 @@
 import { Button, FormControl, Grid, InputLabel, List, ListItem, ListItemText, ListSubheader, makeStyles, MenuItem, Paper, Select } from '@material-ui/core';
 import API from 'api';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Transcript from './Transcript';
 
 
@@ -8,7 +8,8 @@ import Transcript from './Transcript';
 const useStyles = makeStyles((theme) => ({
     container: {
         flexGrow: 1,
-        height: "100%"
+        height: "100%",
+        border: "1px solid #bbb"
     },
     sideBar: {
         borderRight: "1px solid grey",
@@ -20,6 +21,11 @@ const useStyles = makeStyles((theme) => ({
     },
     addButton: {
         marginTop: 5
+    },
+    notStartedContainer: {
+        textAlign: "center",
+        justifyContent: "center",
+        alignContent: "center"
     },
     notStartedMsg: {
         textAlign: "center",
@@ -33,6 +39,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Arena() {
     const classes = useStyles();
+    const scrollContainerRef = useRef(null);
+
 
     const [bots, setBots] = useState([]);
     const [roomBots, setRoomBots] = useState([]);
@@ -72,13 +80,12 @@ export default function Arena() {
         }
         if (active) {
             API.put(`/rooms/${roomHash}/${newBot.id}`);
-        } else {
-            // Add bot ID to selected bots
-            setRoomBots([...roomBots, {
-                name: newBot.name,
-                id: newBot.id
-            }]);
         }
+        // Add bot ID to selected bots
+        setRoomBots([...roomBots, {
+            name: newBot.name,
+            id: newBot.id
+        }]);
     };
 
     const changeSelection = (event) => {
@@ -120,13 +127,15 @@ export default function Arena() {
                     </List>
                 </Grid>
             </Grid>
-            <Grid container item xs={9} className={classes.transcriptContainer}>
+            <Grid container item xs={9} className={classes.transcriptContainer} ref={scrollContainerRef}>
                 {active ? (
-                    <Transcript roomHash={roomHash} />
+                    <Transcript roomHash={roomHash} scrollContainerRef={scrollContainerRef} />
                 ) : (
-                    <Grid style={{ textAlign: "center" }} item xs={12}>
-                        <p className={classes.notStartedMsg}>Start the room to see messages</p>
-                        <Button onClick={startRoom} variant={'contained'} color={'secondary'}>Start</Button>
+                    <Grid container className={classes.notStartedContainer} item xs={12}>
+                        <Grid item xs={12}>
+                            <p className={classes.notStartedMsg}>Start the room to see messages</p>
+                            <Button onClick={startRoom} variant={'contained'} color={'secondary'}>Start</Button>
+                        </Grid>
                     </Grid>
                 )}
             </Grid>
