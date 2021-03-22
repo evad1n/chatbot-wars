@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"context"
@@ -19,7 +19,7 @@ const (
 )
 
 // Connect to a mongo database, uses .env file with key "MONGO_PWD" for password
-func connectDB() (*mongo.Database, error) {
+func ConnectDB() (*mongo.Database, error) {
 	pwd := os.Getenv("MONGO_PWD")
 	if pwd == "" {
 		log.Fatalln("Can't find MONGO_PWD in environemnt variables")
@@ -45,7 +45,7 @@ func connectDB() (*mongo.Database, error) {
 }
 
 // Converts a hex ID string to a bson objectID
-func toMongoID(hexID string) (primitive.ObjectID, error) {
+func ToMongoID(hexID string) (primitive.ObjectID, error) {
 	id, err := primitive.ObjectIDFromHex(hexID)
 	if err != nil {
 		return id, fmt.Errorf("bad id format: %v", err)

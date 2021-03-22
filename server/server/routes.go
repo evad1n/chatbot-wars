@@ -1,0 +1,50 @@
+package server
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+// All the defined routes for the server
+func (s *Server) registerRoutes() {
+
+	api := s.Router.Group("/api")
+	{
+		// Sessions
+		api.POST("/sessions", s.Auth.LoginHandler)
+		// Users
+		api.POST("/users", s.Controllers["users"].PostOne)
+		// Bots
+		api.GET("/bots", s.Controllers["bots"].GetAll)
+		api.GET("/bots/:id", s.Controllers["bots"].GetOne)
+		// Fight rooms
+		api.POST("/rooms", s.Controllers["rooms"].PostOne)
+		api.GET("/rooms/:roomHash", s.Controllers["rooms"].GetOne)
+		api.PUT("/rooms/:roomHash/:botID", s.Controllers["rooms"].UpdateOne)
+		api.DELETE("/rooms/:roomHash", s.Controllers["rooms"].DeleteOne)
+
+		// Auth required endpoints
+		authorized := s.Router.Group("/")
+		authorized.Use(s.Auth.MiddlewareFunc())
+		{
+			// Sessions
+			authorized.GET("/me", getInfo)
+			authorized.DELETE("/sessions", s.Auth.LogoutHandler)
+			// Bots
+			authorized.POST("/bots", s.Controllers["bots"].PostOne)
+			authorized.PUT("/bots/:id", s.Controllers["bots"].UpdateOne)
+			authorized.DELETE("/bots/:id", s.Controllers["bots"].DeleteOne)
+			// Modify lines
+			authorized.POST("/bots/:id/:lineType", s.Controllers["lines"].PostOne)
+			authorized.DELETE("/bots/:id/:lineType/:index", s.Controllers["lines"].DeleteOne)
+		}
+	}
+}
+
+// TODO:
+func getInfo(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"ooga": "booga",
+	})
+}
