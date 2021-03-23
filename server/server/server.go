@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/evad1n/chatbot-wars/auth"
 	"github.com/evad1n/chatbot-wars/controllers"
 	"github.com/evad1n/chatbot-wars/db"
@@ -22,7 +21,7 @@ type (
 	Server struct {
 		DB          *mongo.Database
 		Router      *gin.Engine
-		Auth        *jwt.GinJWTMiddleware
+		Auth        *auth.AuthMiddleware
 		Controllers map[string]controllers.Controller // Named registered controllers
 		Rooms       map[string]*controllers.Room
 	}
@@ -59,15 +58,16 @@ func CreateServer() (Server, error) {
 	s.Router.Use(cors.Default())
 
 	// Sessions
-	// TODO: do i need???
+	// store := cookie.NewStore([]byte("secret"))
+	// s.Router.Use(sessions.Sessions("mysession", store))
 
 	// Auth
-	if s.Auth, err = auth.GetJWTMiddleware(s.DB.Collection("users")); err != nil {
-		log.Fatalf("get JWT middleware: %v", err)
+	secret := os.Getenv("JWT_KEY")
+	if secret == "" {
+		secret = "ooga booga"
 	}
-	if err = s.Auth.MiddlewareInit(); err != nil {
-		log.Fatalf("init JWT middleware: %v", err)
-	}
+
+	s.Auth = auth.New(s.DB.Collection("users"), []byte(secret))
 
 	validation.SetValidateJSONTags()
 

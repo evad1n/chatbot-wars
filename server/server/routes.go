@@ -1,18 +1,12 @@
 package server
 
-import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-)
-
 // All the defined routes for the server
 func (s *Server) registerRoutes() {
 
 	api := s.Router.Group("/api")
 	{
 		// Sessions
-		api.POST("/sessions", s.Auth.LoginHandler)
+		api.POST("/sessions", s.Auth.Login)
 		// Users
 		api.POST("/users", s.Controllers["users"].PostOne)
 		// Bots
@@ -25,12 +19,12 @@ func (s *Server) registerRoutes() {
 		api.DELETE("/rooms/:roomHash", s.Controllers["rooms"].DeleteOne)
 
 		// Auth required endpoints
-		authorized := s.Router.Group("/")
+		authorized := api.Group("")
 		authorized.Use(s.Auth.MiddlewareFunc())
 		{
 			// Sessions
-			authorized.GET("/me", getInfo)
-			authorized.DELETE("/sessions", s.Auth.LogoutHandler)
+			authorized.GET("/me", s.Auth.Me)
+			authorized.DELETE("/sessions", s.Auth.Logout)
 			// Bots
 			authorized.POST("/bots", s.Controllers["bots"].PostOne)
 			authorized.PUT("/bots/:id", s.Controllers["bots"].UpdateOne)
@@ -40,11 +34,4 @@ func (s *Server) registerRoutes() {
 			authorized.DELETE("/bots/:id/:lineType/:index", s.Controllers["lines"].DeleteOne)
 		}
 	}
-}
-
-// TODO:
-func getInfo(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"ooga": "booga",
-	})
 }
