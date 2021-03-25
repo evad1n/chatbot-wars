@@ -20,7 +20,7 @@ export default function Entrance() {
 
     return (
         <React.Fragment>
-            <Grid container spacing={3} direction={'row'}>
+            <Grid container spacing={3} direction={'row'} style={{ margin: 0 }}>
                 <Grid item xs={12} >
                     <Typography className={classes.title} align={'center'}>WELCOME TO THE WORKSHOP</Typography>
                 </Grid>

@@ -1,7 +1,11 @@
-import { AppBar, CssBaseline, Divider, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, CssBaseline, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { ExitToApp } from '@material-ui/icons';
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from 'scripts/auth';
+import ConfirmModal from './workshop/edit/ConfirmModal';
+
 
 const drawerWidth = 240;
 
@@ -13,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
         zIndex: theme.zIndex.drawer + 1,
         backgroundColor: theme.palette.primary.dark
     },
+    dividerColor: {
+        backgroundColor: theme.palette.primary.contrastText
+    },
     appBarLeft: {
         width: drawerWidth,
         flexShrink: 1,
@@ -20,9 +27,28 @@ const useStyles = makeStyles((theme) => ({
         fontWeight: 500,
     },
     appBarRight: {
+        textAlign: "right",
         flexGrow: 1,
-        paddingLeft: 20,
+        paddingRight: 20,
         fontSize: 30,
+    },
+    loginLink: {
+        textDecoration: "none",
+        color: theme.palette.primary.contrastText,
+        "&:hover": {
+            color: theme.palette.secondary.main
+        }
+    },
+    logoutContainer: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-end"
+    },
+    logoutButton: {
+        color: "white",
+        "&:hover": {
+            color: theme.palette.secondary.main
+        }
     },
     drawer: {
         width: drawerWidth,
@@ -53,6 +79,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function NavMenu({ routes, children }) {
+    const { user, logout } = useAuth();
+
+    const theme = useTheme();
     const classes = useStyles();
     const [title, setTitle] = useState("Home");
     // Match base path title 
@@ -68,12 +97,34 @@ export default function NavMenu({ routes, children }) {
         <div className={classes.root}>
             <CssBaseline />
             <AppBar position="fixed" className={classes.appBar}>
-                <Toolbar disableGutters>
+                <Toolbar disableGutters className={classes.headerContainer}>
                     <Typography className={classes.appBarLeft} variant="h4" align={'center'} noWrap>
                         Chatbot Wars
                     </Typography>
-                    <Divider orientation="vertical" flexItem />
-                    <Typography className={classes.appBarRight} variant="h5" align={'center'}>{title}</Typography>
+                    <div className={classes.appBarRight}>
+                        {user ?
+                            <div className={classes.logoutContainer}>
+                                <Typography variant="h5" style={{ alignSelf: "center" }}>Hi, {user.username}</Typography>
+                                <ConfirmModal />
+
+                                <ConfirmModal
+                                    render={open => (
+                                        <IconButton onClick={open} className={classes.logoutButton}>
+                                            <ExitToApp />
+                                        </IconButton>
+                                    )}
+                                    onConfirm={() => logout()}
+                                    prompt={"Are you sure you want to log out?"}
+                                    confirmText={"Logout"}
+                                    color={theme.palette.secondary.main}
+                                    hoverColor={theme.palette.secondary.dark}
+                                />
+
+                            </div>
+                            :
+                            <Typography component={NavLink} to={"/login"} variant="h5" className={classes.loginLink}>Login</Typography>
+                        }
+                    </div>
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -87,7 +138,7 @@ export default function NavMenu({ routes, children }) {
                 <div className={classes.drawerContainer}>
                     <List>
                         {Object.values(routes).map((route, index) => (
-                            <ListItem
+                            route.icon && <ListItem
                                 button
                                 exact={route.exact || false}
                                 component={NavLink}
@@ -106,6 +157,6 @@ export default function NavMenu({ routes, children }) {
             <main className={classes.content}>
                 {children}
             </main>
-        </div>
+        </div >
     );
 }

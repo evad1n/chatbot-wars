@@ -1,5 +1,5 @@
 import Workshop from 'components/workshop/Workshop';
-import Fight from 'components/Fight';
+import Fight from 'components/fight/Fight';
 import Home from "components/Home";
 import NavMenu from 'components/NavMenu';
 import React from "react";
@@ -12,6 +12,8 @@ import Create from 'components/workshop/Create';
 import Edit from 'components/workshop/Edit';
 import Entrance from 'components/workshop/Entrance';
 import BotDetail from 'components/workshop/edit/BotDetail';
+import Login from 'components/auth/Login';
+import Register from 'components/auth/Register';
 
 
 export const routes = {
@@ -52,6 +54,16 @@ export const routes = {
         component: Fight,
         icon: Forum
     },
+    "/login": {
+        name: "Login",
+        path: "/login",
+        component: Login
+    },
+    "/register": {
+        name: "Register",
+        path: "/register",
+        component: Register
+    }
 };
 
 export default function App() {

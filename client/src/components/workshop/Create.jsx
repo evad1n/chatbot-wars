@@ -5,7 +5,7 @@ import StepButton from '@material-ui/core/StepButton';
 import Stepper from '@material-ui/core/Stepper';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import API from 'api';
+import API from 'scripts/api';
 import Finalize from 'components/workshop/create/Finalize';
 import Greetings from 'components/workshop/create/Greetings';
 import Name from 'components/workshop/create/Name';
@@ -206,30 +206,30 @@ export default function Create() {
                         </Grid>
                     </React.Fragment>
                 ) : (
-                        <React.Fragment>
-                            <Grid container spacing={3} item xs={12} className={classes.stepContent}>
-                                {React.createElement(
-                                    steps[activeStep].component,
-                                    {
-                                        value: steps[activeStep].value,
-                                        updateHandler: steps[activeStep].handler,
-                                        setValidator: (validator => steps[activeStep].validate = validator),
-                                        titleStyle: { padding: "30px 0px" }
-                                    },
-                                )}
-                            </Grid>
-                            <Grid item xs={12} className={classes.stepButton}>
-                                <Button disabled={activeStep === 0} onClick={handleBack} size="large" variant="contained" color="secondary">Back</Button>
-                                {!lastStep() ?
-                                    (
-                                        < Button onClick={handleComplete} size="large" variant="contained" color="secondary">Next</Button>
-                                    ) : (
-                                        < Button onClick={() => { createBot(); handleComplete(); }} size="large" variant="contained" color="secondary">To Glory</Button>
-                                    )
-                                }
-                            </Grid>
-                        </React.Fragment>
-                    )}
+                    <React.Fragment>
+                        <Grid container spacing={3} item xs={12} className={classes.stepContent}>
+                            {React.createElement(
+                                steps[activeStep].component,
+                                {
+                                    value: steps[activeStep].value,
+                                    updateHandler: steps[activeStep].handler,
+                                    setValidator: (validator => steps[activeStep].validate = validator),
+                                    titleStyle: { padding: "30px 0px" }
+                                },
+                            )}
+                        </Grid>
+                        <Grid item xs={12} className={classes.stepButton}>
+                            <Button disabled={activeStep === 0} onClick={handleBack} size="large" variant="contained" color="secondary">Back</Button>
+                            {!lastStep() ?
+                                (
+                                    < Button onClick={handleComplete} size="large" variant="contained" color="secondary">Next</Button>
+                                ) : (
+                                    < Button onClick={() => { createBot(); handleComplete(); }} size="large" variant="contained" color="secondary">To Glory</Button>
+                                )
+                            }
+                        </Grid>
+                    </React.Fragment>
+                )}
             </Grid>
         </div >
     );

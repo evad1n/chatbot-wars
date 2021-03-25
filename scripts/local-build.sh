@@ -6,4 +6,5 @@ yarn build
 
 # Move to server folder
 cd ..
+rm -rf ./server/public
 mv ./client/build ./server/public

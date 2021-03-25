@@ -1,8 +1,10 @@
-import { Button, Dialog, DialogActions, DialogTitle, Grid, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
-import API, { moods } from 'api';
+import { Button, Dialog, DialogActions, DialogTitle, Grid, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import API, { moods } from 'scripts/api';
 import React, { useState } from 'react';
 import LineInput from '../create/LineInput';
 import ConfirmModal from './ConfirmModal';
+import DeleteIcon from '@material-ui/icons/Delete';
+
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -122,7 +124,18 @@ export default function LineTable({ botID, lineType, lines, min, refresh }) {
                                         {moods[line.mood]}
                                     </TableCell>
                                     <TableCell align={'center'}>
-                                        <ConfirmModal onConfirm={() => deleteLine(index)} type={"line"} />
+                                        <ConfirmModal
+                                            render={open => (
+                                                <IconButton onClick={open} className={classes.delete}>
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            )}
+                                            onConfirm={() => deleteLine(index)}
+                                            prompt={"Are you sure you want to delete this line?"}
+                                            confirmText={"Delete"}
+                                            color={"red"}
+                                            hoverColor={"darkred"}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))}

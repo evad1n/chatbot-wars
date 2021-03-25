@@ -164,8 +164,10 @@ func New(userCollection *mongo.Collection, secret []byte) *AuthMiddleware {
 
 		// Success
 		c.JSON(http.StatusCreated, gin.H{
-			"token":   token,
-			"expires": expires,
+			"token":    token,
+			"expires":  expires,
+			"uid":      user.ID.Hex(),
+			"username": user.Username,
 		})
 	}
 

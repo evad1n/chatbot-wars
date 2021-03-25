@@ -1,5 +1,5 @@
 import { Box, Divider, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
-import API, { moods } from 'api';
+import API, { moods } from 'scripts/api';
 import React, { useEffect, useRef, useState } from 'react';
 
 const useStyles = makeStyles((theme) => ({

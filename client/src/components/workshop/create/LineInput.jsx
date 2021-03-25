@@ -1,6 +1,6 @@
 import { FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@material-ui/core';
 import React from 'react';
-import { moods } from 'api';
+import { moods } from 'scripts/api';
 
 const streamErrors = (msgs) => {
     return msgs.join("\n");

@@ -20,8 +20,8 @@ type (
 		ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 		FirstName string             `json:"firstName" binding:"required,gt=0"`
 		LastName  string             `json:"lastName" binding:"required,gt=0"`
-		Username  string             `json:"username" binding:"required,gt=2"`
-		Password  string             `json:"password" binding:"required,gt=2"`
+		Username  string             `json:"username" binding:"required,gt=0"`
+		Password  string             `json:"password" binding:"required,gt=0"`
 	}
 )
 
@@ -134,7 +134,7 @@ func InitUsersController(collection *mongo.Collection, log *log.Logger) Controll
 		switch {
 		case res.DeletedCount == 0:
 			c.JSON(http.StatusNotFound, gin.H{
-				"message": "no such bot with specified id",
+				"message": "no such user with specified id",
 			})
 			return
 		default:

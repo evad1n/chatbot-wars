@@ -1,18 +1,21 @@
-import { Button, Dialog, DialogActions, DialogTitle, IconButton, makeStyles } from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/Delete';
+import { Button, Dialog, DialogActions, DialogTitle, makeStyles } from '@material-ui/core';
 import React, { useState } from 'react';
 
-const useStyles = makeStyles({
-    delete: {
+const useStyles = makeStyles((theme) => ({
+    confirmButton: {
+        backgroundColor: props => props.color,
         '&:hover': {
-            color: "red"
+            backgroundColor: props => props.hoverColor
         }
     }
-});
+}));
 
-export default function ConfirmModal({ onConfirm, type }) {
-    const classes = useStyles();
+export default function ConfirmModal(props) {
+    const { onConfirm, prompt, confirmText, render } = props;
+    const classes = useStyles(props);
+
     const [open, setOpen] = useState(false);
+
 
     const handleOpen = () => {
         setOpen(true);
@@ -29,14 +32,15 @@ export default function ConfirmModal({ onConfirm, type }) {
 
     return (
         <React.Fragment>
-            <IconButton className={classes.delete} onClick={handleOpen}>
-                <DeleteIcon />
-            </IconButton>
+            {render && render(handleOpen)}
             <Dialog onClose={handleClose} open={open}>
-                <DialogTitle >Are you sure you want to delete this {type}?</DialogTitle>
+                <DialogTitle >{prompt}</DialogTitle>
                 <DialogActions style={{ justifyContent: "center" }}>
-                    <Button autoFocus onClick={handleClose} color="primary">Cancel</Button>
-                    <Button onClick={handleConfirm} color="primary" className={classes.delete}>Delete</Button>
+                    <Button autoFocus onClick={handleClose} variant="contained" color="primary">Cancel</Button>
+                    <Button
+                        onClick={handleConfirm}
+                        variant="contained"
+                        className={classes.confirmButton} >{confirmText}</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment>

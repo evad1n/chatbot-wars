@@ -1,8 +1,9 @@
-import { Button, CircularProgress, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@material-ui/core';
+import { Button, CircularProgress, Grid, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import API from 'api';
+import DeleteIcon from '@material-ui/icons/Delete';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link as RouterLink, useHistory } from 'react-router-dom';
+import API from 'scripts/api';
 import ConfirmModal from './edit/ConfirmModal';
 
 
@@ -42,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
         alignSelf: "center",
         justifyContent: "center",
         flexGrow: 1
-    }
+    },
 }));
 
 
@@ -110,7 +111,18 @@ export default function Edit() {
                                                         {bot.name}
                                                     </TableCell>
                                                     <TableCell align={'center'}>
-                                                        <ConfirmModal onConfirm={() => deleteBot(bot.id)} type={"bot"} />
+                                                        <ConfirmModal
+                                                            render={open => (
+                                                                <IconButton onClick={open} className={classes.delete}>
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                            )}
+                                                            onConfirm={() => deleteBot(bot.id)}
+                                                            prompt={"Are you sure you want to delete this bot?"}
+                                                            confirmText={"Delete"}
+                                                            color={"red"}
+                                                            hoverColor={"darkred"}
+                                                        />
                                                     </TableCell>
                                                 </TableRow>
                                             ))}

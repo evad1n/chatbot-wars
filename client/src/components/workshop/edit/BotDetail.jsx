@@ -1,5 +1,5 @@
 import { AppBar, Button, CircularProgress, FormControl, Grid, List, ListItem, ListItemText, makeStyles, Tab, Tabs, TextField, Typography } from '@material-ui/core';
-import API from 'api';
+import API from 'scripts/api';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import LineTable from './LineTable';
@@ -131,54 +131,54 @@ export default function BotDetail() {
                     </Grid >
                 </Grid >
             ) : (
+                <React.Fragment>
+                    <Typography className={classes.name}>
+                        {bot.name}
+                    </Typography>
+                    <AppBar position="static">
+                        <Tabs value={tab} onChange={handleChange} variant={'fullWidth'}>
+                            <Tab label="General" />
+                            <Tab label="Greetings" />
+                            <Tab label="Questions" />
+                            <Tab label="Responses" />
+                        </Tabs>
+                    </AppBar>
                     <React.Fragment>
-                        <Typography className={classes.name}>
-                            {bot.name}
-                        </Typography>
-                        <AppBar position="static">
-                            <Tabs value={tab} onChange={handleChange} variant={'fullWidth'}>
-                                <Tab label="General" />
-                                <Tab label="Greetings" />
-                                <Tab label="Questions" />
-                                <Tab label="Responses" />
-                            </Tabs>
-                        </AppBar>
-                        <React.Fragment>
-                            <TabPanel value={tab} index={0} className={classes.general}>
-                                <Grid container spacing={3} item xs={12} className={classes.generalContainer}>
-                                    <Grid item xs={12}>
-                                        <FormControl fullWidth>
-                                            <TextField autoFocus error={nameError} helperText={nameError ? badLength : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
-                                        </FormControl>
-                                    </Grid>
+                        <TabPanel value={tab} index={0} className={classes.general}>
+                            <Grid container spacing={3} item xs={12} className={classes.generalContainer}>
+                                <Grid item xs={12}>
+                                    <FormControl fullWidth>
+                                        <TextField autoFocus error={nameError} helperText={nameError ? badLength : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
+                                    </FormControl>
                                 </Grid>
-                                {error && (
-                                    <Grid item xs={12} className={classes.errorList}>
-                                        <List subheader={"Please fix the following errors"}>
-                                            {errorMessages.map((msg, index) => (
-                                                <ListItem key={index}>
-                                                    <ListItemText primary={msg} className={classes.errorList} />
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    </Grid>
-                                )}
-                                <Grid item xs={12} className={classes.generalSave}>
-                                    <Button onClick={validate} fullWidth size={'large'} variant={'contained'} color={'secondary'}>Save</Button>
+                            </Grid>
+                            {error && (
+                                <Grid item xs={12} className={classes.errorList}>
+                                    <List subheader={"Please fix the following errors"}>
+                                        {errorMessages.map((msg, index) => (
+                                            <ListItem key={index}>
+                                                <ListItemText primary={msg} className={classes.errorList} />
+                                            </ListItem>
+                                        ))}
+                                    </List>
                                 </Grid>
-                            </TabPanel>
-                            <TabPanel value={tab} index={1}>
-                                <LineTable botID={bot.id} lineType={"greetings"} lines={bot.greetings} min={1} refresh={getBotData} />
-                            </TabPanel>
-                            <TabPanel value={tab} index={2}>
-                                <LineTable botID={bot.id} lineType={"questions"} lines={bot.questions} min={2} refresh={getBotData} />
-                            </TabPanel>
-                            <TabPanel value={tab} index={3}>
-                                <LineTable botID={bot.id} lineType={"responses"} lines={bot.responses} min={2} refresh={getBotData} />
-                            </TabPanel>
-                        </React.Fragment>
+                            )}
+                            <Grid item xs={12} className={classes.generalSave}>
+                                <Button onClick={validate} fullWidth size={'large'} variant={'contained'} color={'secondary'}>Save</Button>
+                            </Grid>
+                        </TabPanel>
+                        <TabPanel value={tab} index={1}>
+                            <LineTable botID={bot.id} lineType={"greetings"} lines={bot.greetings} min={1} refresh={getBotData} />
+                        </TabPanel>
+                        <TabPanel value={tab} index={2}>
+                            <LineTable botID={bot.id} lineType={"questions"} lines={bot.questions} min={2} refresh={getBotData} />
+                        </TabPanel>
+                        <TabPanel value={tab} index={3}>
+                            <LineTable botID={bot.id} lineType={"responses"} lines={bot.responses} min={2} refresh={getBotData} />
+                        </TabPanel>
                     </React.Fragment>
-                )
+                </React.Fragment>
+            )
             } </React.Fragment>
     );
 }
