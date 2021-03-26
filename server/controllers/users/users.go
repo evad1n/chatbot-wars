@@ -8,7 +8,6 @@ import (
 	"github.com/evad1n/chatbot-wars/db"
 	"github.com/evad1n/chatbot-wars/models"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,12 +18,7 @@ func PostOne(c *gin.Context) {
 
 	// Bind request body
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		if errs, ok := err.(validator.ValidationErrors); ok {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": common.ValidationErrorMessages(errs)})
-		} else {
-			c.String(http.StatusUnprocessableEntity, err.Error())
-		}
+	if err := common.BindWithErrors(c, &user); err != nil {
 		return
 	}
 
@@ -77,12 +71,7 @@ func UpdateOne(c *gin.Context) {
 
 	// Bind request body
 	var updatedBot models.Bot
-	if err := c.ShouldBindJSON(&updatedBot); err != nil {
-		if errs, ok := err.(validator.ValidationErrors); ok {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": common.ValidationErrorMessages(errs)})
-		} else {
-			c.String(http.StatusUnprocessableEntity, err.Error())
-		}
+	if err := common.BindWithErrors(c, &updatedBot); err != nil {
 		return
 	}
 

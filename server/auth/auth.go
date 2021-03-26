@@ -13,7 +13,6 @@ import (
 	"github.com/evad1n/chatbot-wars/db"
 	"github.com/evad1n/chatbot-wars/models"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -125,12 +124,7 @@ func New(secret []byte) *AuthMiddleware {
 
 	auth.Login = func(c *gin.Context) {
 		var info LoginInfo
-		if err := c.ShouldBind(&info); err != nil {
-			if errs, ok := err.(validator.ValidationErrors); ok {
-				c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": common.ValidationErrorMessages(errs)})
-			} else {
-				c.String(http.StatusUnprocessableEntity, err.Error())
-			}
+		if err := common.BindWithErrors(c, &info); err != nil {
 			return
 		}
 

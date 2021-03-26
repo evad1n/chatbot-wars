@@ -77,12 +77,7 @@ func PostOne(c *gin.Context) {
 
 	// Bind request body
 	var bot models.Bot
-	if err := c.ShouldBindJSON(&bot); err != nil {
-		if errs, ok := err.(validator.ValidationErrors); ok {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": common.ValidationErrorMessages(errs)})
-		} else {
-			c.String(http.StatusUnprocessableEntity, err.Error())
-		}
+	if err := common.BindWithErrors(c, &bot); err != nil {
 		return
 	}
 
