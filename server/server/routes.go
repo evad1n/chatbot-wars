@@ -18,12 +18,6 @@ func (s *Server) registerRoutes() {
 		api.POST("/users", users.PostOne)
 		// Bots
 		api.GET("/bots", bots.GetAll)
-		api.GET("/bots/:id", bots.GetOne)
-		// Fight rooms
-		api.POST("/rooms", rooms.PostOne)
-		api.GET("/rooms/:roomHash", rooms.GetOne)
-		api.PUT("/rooms/:roomHash/:botID", rooms.UpdateOne)
-		api.DELETE("/rooms/:roomHash", rooms.DeleteOne)
 
 		// Auth required endpoints
 		authorized := api.Group("")
@@ -32,6 +26,7 @@ func (s *Server) registerRoutes() {
 			// Sessions
 			authorized.GET("/me", s.Auth.Me)
 			// Bots
+			authorized.GET("/bots/:id", bots.GetOne)
 			authorized.POST("/bots", bots.PostOne)
 			authorized.PUT("/bots/:id", bots.UpdateOne)
 			authorized.DELETE("/bots/:id", bots.DeleteOne)
@@ -39,6 +34,12 @@ func (s *Server) registerRoutes() {
 			authorized.POST("/bots/:id/:lineType", lines.PostOne)
 			authorized.DELETE("/bots/:id/:lineType/:index", lines.DeleteOne)
 		}
+
+		// Fight rooms
+		api.POST("/rooms", rooms.PostOne)
+		api.GET("/rooms/:roomHash", rooms.GetOne)
+		api.PUT("/rooms/:roomHash/:botID", rooms.UpdateOne)
+		api.DELETE("/rooms/:roomHash", rooms.DeleteOne)
 
 		// Other
 		api.GET("/unique/users/:username", users.UniqueName)

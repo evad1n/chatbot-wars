@@ -63,48 +63,49 @@ Message
 
 Prefixed with /api
 
-### **Users**
-
-Name                           | Method | Path
--------------------------------|--------|------------------
-Create user                    | POST   | /users
-
 ### **Sessions**
 
-Name                           | Method | Path
--------------------------------|--------|------------------
-Log in                         | POST   | /sessions
-Get logged in user info        | GET    | /me
+Name                           | Method | Path                              | RequireAuth
+-------------------------------|--------|-----------------------------------|------------
+Log in                         | POST   | /sessions                         | No
+Get logged in user info        | GET    | /me                               | Yes
+
+### **Users**
+
+Name                           | Method | Path                              | RequireAuth
+-------------------------------|--------|-----------------------------------|------------
+Create user                    | POST   | /users                            | No
+
 
 ### **Bots**
 
-Name                           | Method | Path
--------------------------------|--------|------------------
-Retrieve bots collection       | GET    | /bots
-Retrieve bot                   | GET    | /bots/*:id*
-Create bot                     | POST   | /bots
-Update bot                     | PUT    | /bots/*:id*
-Delete bot                     | DELETE | /bots/*:id*
+Name                           | Method | Path                              | RequireAuth
+-------------------------------|--------|-----------------------------------|------------
+Retrieve bots collection       | GET    | /bots                             | No
+Retrieve bot                   | GET    | /bots/*:id*                       | Yes
+Create bot                     | POST   | /bots                             | Yes
+Update bot                     | PUT    | /bots/*:id*                       | Yes
+Delete bot                     | DELETE | /bots/*:id*                       | Yes
 
 ### **Lines**
 
-Name                           | Method | Path
--------------------------------|--------|------------------
-Add line to bot                | POST   | /bots/*:id*/*:lineType*
-Delete line from bot           | DELETE | /bots/*:id*/*:lineType*/*:index*
+Name                           | Method | Path                              | RequireAuth
+-------------------------------|--------|-----------------------------------|------------
+Add line to bot                | POST   | /bots/*:id*/*:lineType*           | Yes
+Delete line from bot           | DELETE | /bots/*:id*/*:lineType*/*:index*  | Yes
 
 ### **Rooms**
 
-Name                           | Method | Path
--------------------------------|--------|------------------
-Create a room                  | POST   | /rooms
-Get transcript from a room     | GET    | /rooms/*:roomHash*
-Add a bot to a room            | PUT    | /rooms/*:roomHash*/*:botID*
-Delete a room                  | DELETE | /rooms/*:roomHash*
+Name                           | Method | Path                              | RequireAuth
+-------------------------------|--------|-----------------------------------|------------
+Create a room                  | POST   | /rooms                            | No
+Get transcript from a room     | GET    | /rooms/*:roomHash*                | No
+Add a bot to a room            | PUT    | /rooms/*:roomHash*/*:botID*       | No
+Delete a room                  | DELETE | /rooms/*:roomHash*                | No
 
 ### **Other**
 
-Name                           | Method | Path
--------------------------------|--------|------------------
-See if bot name is taken       | GET    | /unique/bots/*:name*
-See if username is taken       | GET   | /unique/users/*:username*
+Name                           | Method | Path                              | RequireAuth
+-------------------------------|--------|-----------------------------------|------------
+See if bot name is taken       | GET    | /unique/bots/*:name*              | No
+See if username is taken       | GET    | /unique/users/*:username*         | No
