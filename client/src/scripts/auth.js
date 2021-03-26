@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import API from 'scripts/api';
 
 const authContext = createContext();
@@ -20,9 +20,28 @@ export const useAuth = () => {
 function useProvideAuth() {
     const [user, setUser] = useState(false);
 
+    // Initial attempt to fetch jwt
+    useEffect(() => {
+
+        async function fetchData() {
+            let token = localStorage.getItem("jwt_token");
+            if (token != null) {
+                try {
+                    let response = await API.get('/me');
+                    setUser({
+                        uid: response.data.uid,
+                        username: response.data.username
+                    });
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        }
+
+        fetchData();
+    }, []);
+
     const register = async (loginData) => {
-        console.log(loginData);
-        return;
         try {
             let response = await API.post('/users', loginData);
             return response;
@@ -32,8 +51,6 @@ function useProvideAuth() {
     };
 
     const login = async (username, password) => {
-        console.log(username, password);
-        return;
         try {
             let response = await API.post('/sessions', {
                 username,
@@ -53,7 +70,7 @@ function useProvideAuth() {
     const logout = () => {
         // Delete token from local storage
         localStorage.removeItem("jwt_token");
-        setUser(false);
+        setUser(() => false);
     };
 
     // Return the user object and auth methods

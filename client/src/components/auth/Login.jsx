@@ -1,8 +1,10 @@
 import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { Lock, Person } from '@material-ui/icons';
 import React, { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useHistory } from 'react-router-dom';
 import { useAuth } from 'scripts/auth';
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -26,12 +28,23 @@ const useStyles = makeStyles((theme) => ({
         "&:hover": {
             color: theme.palette.secondary.main
         }
+    },
+    icon: {
+        alignSelf: "center",
+        fontSize: 44,
+        paddingRight: 10
     }
 }));
 
 export default function Login() {
     const classes = useStyles();
     const { login } = useAuth();
+    const history = useHistory();
+
+    const [errors, setErrors] = useState({
+        username: "",
+        password: "",
+    });
 
     const [state, setState] = useState({
         username: "",
@@ -39,18 +52,30 @@ export default function Login() {
     });
 
     const validate = async () => {
-        console.log(state);
-        let valid = false;
+        let newErrors = {
+            username: "",
+            password: "",
+        };
+        let valid = true;
+        if (state.username.length === 0) {
+            newErrors.username = "Username must not be empty";
+            valid = false;
+        }
+        if (state.password.length === 0) {
+            newErrors.password = "Password must not be empty";
+            valid = false;
+        }
         if (valid) {
             tryLogin();
         }
+        setErrors(() => newErrors);
     };
 
     async function tryLogin() {
         try {
-            let response = await login(state.username, state.password);
-            console.log(response);
-            console.log("SUCCESS");
+            await login(state.username, state.password);
+            // Nav to home page
+            history.push("/");
         } catch (error) {
             console.error(error);
         }
@@ -65,11 +90,29 @@ export default function Login() {
                 </Grid>
                 <Grid item xs={12}>
                     <Grid container spacing={4} component={Paper} className={classes.formContainer} elevation={6}>
-                        <Grid item xs={12}>
-                            <TextField onChange={event => setState({ ...state, username: event.target.value })} label="Username" variant="outlined" fullWidth />
+                        <Grid item xs={12} style={{ display: "flex" }}>
+                            <Person className={classes.icon} color={"action"} />
+                            <TextField
+                                error={state.username.length === 0 && errors.username.length > 0}
+                                helperText={state.username.length === 0 ? errors.username : ""}
+                                onChange={event => setState({ ...state, username: event.target.value })}
+                                label="Username"
+                                variant="outlined"
+                                style={{ flexGrow: 1 }}
+                            />
                         </Grid>
-                        <Grid item xs={12}>
-                            <TextField onChange={event => setState({ ...state, password: event.target.value })} type={"password"} label="Password" variant="outlined" fullWidth />
+                        <Grid item xs={12} style={{ display: "flex" }}>
+                            <Lock className={classes.icon} color={"action"} />
+                            <TextField
+                                error={state.password.length === 0 && errors.password.length > 0}
+                                helperText={state.password.length === 0 ? errors.password : ""}
+                                onChange={event => setState({ ...state, password: event.target.value })}
+                                type={"password"}
+                                label="Password"
+                                variant="outlined"
+                                style={{ flexGrow: 1 }}
+
+                            />
                         </Grid>
                         <Grid item xs={12}>
                             <Button onClick={validate} fullWidth variant="contained" color="secondary" style={{}}>Log In</Button>

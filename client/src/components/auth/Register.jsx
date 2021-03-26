@@ -1,7 +1,7 @@
 import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useHistory } from 'react-router-dom';
 import { useAuth } from 'scripts/auth';
 
 
@@ -36,6 +36,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Register() {
     const classes = useStyles();
     const { register, login } = useAuth();
+    const history = useHistory();
 
     const [errors, setErrors] = useState({
         firstName: "",
@@ -83,10 +84,11 @@ export default function Register() {
 
     async function tryRegister() {
         try {
-            let response = await register(state);
-            console.log(response);
+            await register(state);
             await login(state.username, state.password);
-            console.log("SUCCESS");
+            // Nav to home page
+            history.push("/");
+
         } catch (error) {
             console.error(error);
         }

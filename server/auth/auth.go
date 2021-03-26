@@ -9,13 +9,13 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/evad1n/chatbot-wars/controllers"
-	"github.com/evad1n/chatbot-wars/validation"
+	"github.com/evad1n/chatbot-wars/common"
+	"github.com/evad1n/chatbot-wars/db"
+	"github.com/evad1n/chatbot-wars/models"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -48,7 +48,7 @@ const (
 	tokenTimeout = time.Hour * 48
 )
 
-func GenerateToken(user controllers.User, secret []byte) (string, string) {
+func GenerateToken(user models.User, secret []byte) (string, string) {
 	now := time.Now()
 	claims := AuthClaims{
 		Username: user.Username,
@@ -106,7 +106,7 @@ func GetJWTClaims(c *gin.Context) *AuthClaims {
 	return claims.(*AuthClaims)
 }
 
-func New(userCollection *mongo.Collection, secret []byte) *AuthMiddleware {
+func New(secret []byte) *AuthMiddleware {
 	auth := AuthMiddleware{}
 
 	auth.MiddlewareFunc = func() gin.HandlerFunc {
@@ -127,7 +127,7 @@ func New(userCollection *mongo.Collection, secret []byte) *AuthMiddleware {
 		var info LoginInfo
 		if err := c.ShouldBind(&info); err != nil {
 			if errs, ok := err.(validator.ValidationErrors); ok {
-				c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": validation.ValidationErrorMessages(errs)})
+				c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": common.ValidationErrorMessages(errs)})
 			} else {
 				c.String(http.StatusUnprocessableEntity, err.Error())
 			}
@@ -136,7 +136,7 @@ func New(userCollection *mongo.Collection, secret []byte) *AuthMiddleware {
 
 		// Find user
 		filter := bson.M{"username": info.Username}
-		res := userCollection.FindOne(c.Request.Context(), filter)
+		res := db.Users.FindOne(c.Request.Context(), filter)
 		// If no doc is found
 		if res.Err() != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -145,7 +145,7 @@ func New(userCollection *mongo.Collection, secret []byte) *AuthMiddleware {
 			return
 		}
 
-		var user controllers.User
+		var user models.User
 		if err := res.Decode(&user); err != nil {
 			log.Println("error decoding user in login")
 			c.Status(http.StatusInternalServerError)
@@ -169,10 +169,6 @@ func New(userCollection *mongo.Collection, secret []byte) *AuthMiddleware {
 			"uid":      user.ID.Hex(),
 			"username": user.Username,
 		})
-	}
-
-	auth.Logout = func(c *gin.Context) {
-		c.Status(http.StatusOK)
 	}
 
 	auth.Me = func(c *gin.Context) {

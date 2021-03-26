@@ -18,8 +18,17 @@ const (
 	dbName   = "chatbot-wars" // MongoDB database name
 )
 
+var (
+	// The connected mongo database
+	DB *mongo.Database
+	// Bots collection
+	Bots *mongo.Collection
+	// Users collection
+	Users *mongo.Collection
+)
+
 // Connect to a mongo database, uses .env file with key "MONGO_PWD" for password
-func ConnectDB() (*mongo.Database, error) {
+func ConnectDB() error {
 	pwd := os.Getenv("MONGO_PWD")
 	if pwd == "" {
 		log.Fatalln("Can't find MONGO_PWD in environemnt variables")
@@ -29,19 +38,23 @@ func ConnectDB() (*mongo.Database, error) {
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
-		return nil, fmt.Errorf("creating mongo client: %v", err)
+		return fmt.Errorf("creating mongo client: %v", err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	err = client.Connect(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("client connecting to mongo: %v", err)
+		return fmt.Errorf("client connecting to mongo: %v", err)
 	}
-	db := client.Database(dbName)
+	// Assing variables
+	DB = client.Database(dbName)
+	Bots = DB.Collection("bots")
+	Users = DB.Collection("users")
+
 	// Successfully connected**
 	log.Printf("Successfully connected to MongoDB (database: %s)\n\n", dbName)
 
-	return db, nil
+	return nil
 }
 
 // Converts a hex ID string to a bson objectID

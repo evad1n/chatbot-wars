@@ -7,11 +7,7 @@ const API = axios.create({
     }
 });
 
-// yourConfig = {
-//     headers: {
-//         Authorization: "Bearer " + yourJWTToken
-//     }
-// }
+
 
 
 const moods = [

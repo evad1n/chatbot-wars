@@ -1,5 +1,12 @@
 package server
 
+import (
+	"github.com/evad1n/chatbot-wars/controllers/bots"
+	"github.com/evad1n/chatbot-wars/controllers/lines"
+	"github.com/evad1n/chatbot-wars/controllers/rooms"
+	"github.com/evad1n/chatbot-wars/controllers/users"
+)
+
 // All the defined routes for the server
 func (s *Server) registerRoutes() {
 
@@ -8,15 +15,15 @@ func (s *Server) registerRoutes() {
 		// Sessions
 		api.POST("/sessions", s.Auth.Login)
 		// Users
-		api.POST("/users", s.Controllers["users"].PostOne)
+		api.POST("/users", users.PostOne)
 		// Bots
-		api.GET("/bots", s.Controllers["bots"].GetAll)
-		api.GET("/bots/:id", s.Controllers["bots"].GetOne)
+		api.GET("/bots", bots.GetAll)
+		api.GET("/bots/:id", bots.GetOne)
 		// Fight rooms
-		api.POST("/rooms", s.Controllers["rooms"].PostOne)
-		api.GET("/rooms/:roomHash", s.Controllers["rooms"].GetOne)
-		api.PUT("/rooms/:roomHash/:botID", s.Controllers["rooms"].UpdateOne)
-		api.DELETE("/rooms/:roomHash", s.Controllers["rooms"].DeleteOne)
+		api.POST("/rooms", rooms.PostOne)
+		api.GET("/rooms/:roomHash", rooms.GetOne)
+		api.PUT("/rooms/:roomHash/:botID", rooms.UpdateOne)
+		api.DELETE("/rooms/:roomHash", rooms.DeleteOne)
 
 		// Auth required endpoints
 		authorized := api.Group("")
@@ -24,14 +31,17 @@ func (s *Server) registerRoutes() {
 		{
 			// Sessions
 			authorized.GET("/me", s.Auth.Me)
-			authorized.DELETE("/sessions", s.Auth.Logout)
 			// Bots
-			authorized.POST("/bots", s.Controllers["bots"].PostOne)
-			authorized.PUT("/bots/:id", s.Controllers["bots"].UpdateOne)
-			authorized.DELETE("/bots/:id", s.Controllers["bots"].DeleteOne)
+			authorized.POST("/bots", bots.PostOne)
+			authorized.PUT("/bots/:id", bots.UpdateOne)
+			authorized.DELETE("/bots/:id", bots.DeleteOne)
 			// Modify lines
-			authorized.POST("/bots/:id/:lineType", s.Controllers["lines"].PostOne)
-			authorized.DELETE("/bots/:id/:lineType/:index", s.Controllers["lines"].DeleteOne)
+			authorized.POST("/bots/:id/:lineType", lines.PostOne)
+			authorized.DELETE("/bots/:id/:lineType/:index", lines.DeleteOne)
 		}
+
+		// Other
+		api.GET("/unique/users/:username", users.UniqueName)
+		api.GET("/unique/bots/:name", bots.UniqueName)
 	}
 }

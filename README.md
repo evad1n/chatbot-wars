@@ -58,6 +58,19 @@ Message
 
 Prefixed with /api
 
+### **Users**
+
+Name                           | Method | Path
+-------------------------------|--------|------------------
+Create user                    | POST   | /users
+
+### **Sessions**
+
+Name                           | Method | Path
+-------------------------------|--------|------------------
+Log in                         | POST   | /sessions
+Get logged in user info        | GET    | /me
+
 ### **Bots**
 
 Name                           | Method | Path
@@ -83,3 +96,10 @@ Create a room                  | POST   | /rooms
 Get transcript from a room     | GET    | /rooms/*:roomHash*
 Add a bot to a room            | PUT    | /rooms/*:roomHash*/*:botID*
 Delete a room                  | DELETE | /rooms/*:roomHash*
+
+### **Other**
+
+Name                           | Method | Path
+-------------------------------|--------|------------------
+See if bot name is taken       | GET    | /unique/bots/*:name*
+See if username is taken       | GET   | /unique/users/*:username*
