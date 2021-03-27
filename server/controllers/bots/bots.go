@@ -156,7 +156,7 @@ func GetUserBots(c *gin.Context) {
 
 	cur, err := db.Bots.Find(ctx, bson.M{"_uid": userID})
 	if err != nil {
-		log.Printf("GetAll: finding: %v\n", err)
+		log.Printf("GetUserBots: finding: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -166,14 +166,14 @@ func GetUserBots(c *gin.Context) {
 		var bot models.Bot
 		err := cur.Decode(&bot)
 		if err != nil {
-			log.Printf("GetAll: decoding: %v\n", err)
+			log.Printf("GetUserBots: decoding: %v\n", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		bots = append(bots, bot)
 	}
 	if err := cur.Err(); err != nil {
-		log.Printf("GetAll: cursor error: %v\n", err)
+		log.Printf("GetUserBots: cursor error: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

@@ -57,7 +57,7 @@ export default function Edit() {
     // Fetch bot data
     const getBots = useCallback(
         async () => {
-            let response = await API.get('/bots');
+            let response = await API.get('/users/bots');
             setBots(response.data);
             setLoading(false);
         },

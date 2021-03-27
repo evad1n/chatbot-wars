@@ -93,7 +93,7 @@ export default function Arena() {
     };
 
     return (
-        <Grid component={Paper} container item xs={12} className={classes.container}>
+        <Grid component={Paper} elevation={3} container item xs={12} className={classes.container}>
             <Grid container item xs={3} className={classes.sideBar}>
                 <Grid item xs={12} className={classes.select}>
                     <FormControl variant="outlined" fullWidth>

@@ -12,6 +12,7 @@ const useStyles = makeStyles((theme) => ({
     },
     title: {
         fontSize: 30,
+        fontWeight: "bold"
     },
     fightZone: {
         flexGrow: 1,
