@@ -51,80 +51,16 @@ func PostOne(c *gin.Context) {
 	})
 }
 
-func UpdateOne(c *gin.Context) {
-	ctx, cancel := common.TimeoutCtx(c)
-	defer cancel()
-
-	// Decode to mongoDB ObjectID
-	id, err := db.ToMongoID(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
-	}
-	filter := bson.M{"_id": id}
-
-	// Check if exists before even parsing data (404 > 400)
-	if db.Users.FindOne(ctx, filter).Err() != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "no bot found with specified id"})
-		return
-	}
-
-	// Bind request body
-	var updatedBot models.Bot
-	if err := common.BindWithErrors(c, &updatedBot); err != nil {
-		return
-	}
-
-	// Full replace to simplify things
-	_, err = db.Users.ReplaceOne(ctx, filter, updatedBot)
-	if err != nil {
-		log.Printf("UpdateOne: updating: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.Status(http.StatusOK)
-}
-
-func DeleteOne(c *gin.Context) {
-	ctx, cancel := common.TimeoutCtx(c)
-	defer cancel()
-
-	// Decode to mongoDB ObjectID
-	id, err := db.ToMongoID(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
-	}
-
-	filter := bson.M{"_id": id}
-	res, err := db.Users.DeleteOne(ctx, filter)
-	if err != nil {
-		log.Printf("DeleteOne: deleting: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	switch {
-	case res.DeletedCount == 0:
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": "no such user with specified id",
-		})
-		return
-	default:
-		c.Status(http.StatusOK)
-	}
-}
-
 // A query to ask if a username is taken
 func UniqueName(c *gin.Context) {
 	ctx, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
-	username := c.Query("username")
+	username := c.Param("username")
 
 	if len(username) == 0 {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"message": "username cannot be empty"})
+		return
 	}
 
 	filter := bson.M{"username": username}

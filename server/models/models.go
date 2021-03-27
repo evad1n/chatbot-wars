@@ -15,6 +15,7 @@ type (
 	// Bot is a chatbot with a collection of lines
 	Bot struct {
 		ID        primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+		UID       primitive.ObjectID `json:"uid,omitempty" bson:"_uid,omitempty"` // User ID the bot belongs to
 		Name      string             `json:"name" binding:"required,min=3,max=30"`
 		Greetings []Line             `json:"greetings" binding:"required,gte=1,dive"`
 		Questions []Line             `json:"questions" binding:"required,gte=2,dive"`

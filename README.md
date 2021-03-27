@@ -48,16 +48,6 @@ Line
 - text (string)
 - mood (int)
 
-
-**For Rooms**
-
-Transcript
-- []Message
-
-Message
-- Name
-- Line
-
 ---
 ## API Endpoints
 

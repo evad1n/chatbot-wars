@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/evad1n/chatbot-wars/auth"
 	"github.com/evad1n/chatbot-wars/common"
 	"github.com/evad1n/chatbot-wars/db"
 	"github.com/evad1n/chatbot-wars/models"
@@ -38,17 +39,11 @@ func PostOne(c *gin.Context) {
 		return
 	}
 
-	// Decode to mongoDB ObjectID
-	id, err := db.ToMongoID(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
-	}
-	filter := bson.M{"_id": id}
+	userID := auth.GetUserID(c)
+	botID := c.Param("id")
 
-	// Check if bot exists before even parsing data (404 > 400)
-	if db.Bots.FindOne(ctx, filter).Err() != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "no bot found with specified id"})
+	bot, allowed := auth.IsAllowedBot(c, botID, userID)
+	if !allowed {
 		return
 	}
 
@@ -58,10 +53,16 @@ func PostOne(c *gin.Context) {
 		return
 	}
 
-	// Stupid workaround to delete by index
-	update := bson.M{"$push": bson.M{fmt.Sprintf("%s", lineType): line}}
-	_, err = db.Bots.UpdateOne(ctx, filter, update)
-	if err != nil {
+	filter := bson.M{"_id": bot.ID}
+
+	// Add to line array
+	update := bson.M{
+		"$push": bson.M{
+			lineType: line,
+		},
+	}
+
+	if _, err := db.Bots.UpdateOne(ctx, filter, update); err != nil {
 		log.Printf("Line post: updating: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -81,38 +82,42 @@ func DeleteOne(c *gin.Context) {
 		return
 	}
 
-	// Decode to mongoDB ObjectID
-	id, err := db.ToMongoID(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
-	}
-	filter := bson.M{"_id": id}
-
-	// Check if bot exists before even parsing data (404 > 400)
-	if db.Bots.FindOne(ctx, filter).Err() != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "no bot found with specified id"})
-		return
-	}
-
 	index, err := strconv.Atoi(c.Param("index"))
 	if err != nil {
 		c.String(http.StatusUnprocessableEntity, "index value must be a number")
+		return
 	}
 
+	userID := auth.GetUserID(c)
+	botID := c.Param("id")
+
+	bot, allowed := auth.IsAllowedBot(c, botID, userID)
+	if !allowed {
+		return
+	}
+
+	filter := bson.M{"_id": bot.ID}
+
 	// Stupid workaround to delete by index
-	// First set at index to nil
-	update := bson.M{"$unset": bson.M{fmt.Sprintf("%s.%d", lineType, index): nil}}
-	_, err = db.Bots.UpdateOne(ctx, filter, update)
-	if err != nil {
+	// First set line at index to nil
+	update := bson.M{
+		"$unset": bson.M{
+			fmt.Sprintf("%s.%d", lineType, index): nil,
+		},
+	}
+	if _, err := db.Bots.UpdateOne(ctx, filter, update); err != nil {
 		log.Printf("Line update: unsetting: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	// Now remove it with nil filter
-	update = bson.M{"$pull": bson.M{lineType: nil}}
-	_, err = db.Bots.UpdateOne(ctx, filter, update)
-	if err != nil {
+	update = bson.M{
+		"$pull": bson.M{
+			lineType: nil,
+		},
+	}
+	if _, err := db.Bots.UpdateOne(ctx, filter, update); err != nil {
 		log.Printf("Line update: pulling: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

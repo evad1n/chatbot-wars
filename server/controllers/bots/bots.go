@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/evad1n/chatbot-wars/auth"
 	"github.com/evad1n/chatbot-wars/common"
 	"github.com/evad1n/chatbot-wars/db"
 	"github.com/evad1n/chatbot-wars/models"
@@ -13,28 +14,14 @@ import (
 )
 
 func GetOne(c *gin.Context) {
-	ctx, cancel := common.TimeoutCtx(c)
+	_, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
-	var bot models.Bot
-	// Decode to mongoDB ObjectID
-	id, err := db.ToMongoID(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
-	}
-	filter := bson.M{"_id": id}
+	userID := auth.GetUserID(c)
+	botID := c.Param("id")
 
-	res := db.Bots.FindOne(ctx, filter)
-	// If no doc is found
-	if res.Err() != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "no bot found with specified id"})
-		return
-	}
-
-	if err := res.Decode(&bot); err != nil {
-		log.Printf("GetOne: decoding: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	bot, allowed := auth.IsAllowedBot(c, botID, userID)
+	if !allowed {
 		return
 	}
 
@@ -46,12 +33,13 @@ func GetAll(c *gin.Context) {
 	defer cancel()
 
 	bots := []models.Bot{}
-	cur, err := db.Bots.Find(ctx, bson.D{})
+	cur, err := db.Bots.Find(ctx, bson.M{})
 	if err != nil {
 		log.Printf("GetAll: finding: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	// Iterate and decode
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
 		var bot models.Bot
@@ -68,6 +56,7 @@ func GetAll(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusOK, bots)
 }
 
@@ -80,6 +69,10 @@ func PostOne(c *gin.Context) {
 	if err := common.BindWithErrors(c, &bot); err != nil {
 		return
 	}
+
+	userID := auth.GetUserID(c)
+
+	bot.UID = userID
 
 	// Now insert it
 	res, err := db.Bots.InsertOne(ctx, bot)
@@ -98,17 +91,10 @@ func UpdateOne(c *gin.Context) {
 	ctx, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
-	// Decode to mongoDB ObjectID
-	id, err := db.ToMongoID(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
-	}
-	filter := bson.M{"_id": id}
-
-	// Check if exists before even parsing data (404 > 400)
-	if db.Bots.FindOne(ctx, filter).Err() != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "no bot found with specified id"})
+	userID := auth.GetUserID(c)
+	botID := c.Param("id")
+	bot, allowed := auth.IsAllowedBot(c, botID, userID)
+	if !allowed {
 		return
 	}
 
@@ -123,9 +109,13 @@ func UpdateOne(c *gin.Context) {
 		return
 	}
 
+	// Preserve UserID
+	updatedBot.UID = userID
+
+	filter := bson.M{"_id": bot.ID}
+
 	// Full replace to simplify things
-	_, err = db.Bots.ReplaceOne(ctx, filter, updatedBot)
-	if err != nil {
+	if _, err := db.Bots.ReplaceOne(ctx, filter, updatedBot); err != nil {
 		log.Printf("UpdateOne: updating: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -138,30 +128,57 @@ func DeleteOne(c *gin.Context) {
 	ctx, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
-	// Decode to mongoDB ObjectID
-	id, err := db.ToMongoID(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+	userID := auth.GetUserID(c)
+	botID := c.Param("id")
+	bot, allowed := auth.IsAllowedBot(c, botID, userID)
+	if !allowed {
 		return
 	}
 
-	filter := bson.M{"_id": id}
-	res, err := db.Bots.DeleteOne(ctx, filter)
-	if err != nil {
+	filter := bson.M{"_id": bot.ID}
+
+	if _, err := db.Bots.DeleteOne(ctx, filter); err != nil {
 		log.Printf("DeleteOne: deleting: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	switch {
-	case res.DeletedCount == 0:
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": "no such bot with specified id",
-		})
+	c.Status(http.StatusOK)
+}
+
+func GetUserBots(c *gin.Context) {
+	ctx, cancel := common.TimeoutCtx(c)
+	defer cancel()
+
+	userID := auth.GetUserID(c)
+
+	bots := []models.Bot{}
+
+	cur, err := db.Bots.Find(ctx, bson.M{"_uid": userID})
+	if err != nil {
+		log.Printf("GetAll: finding: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
-	default:
-		c.Status(http.StatusOK)
 	}
+
+	defer cur.Close(ctx)
+	for cur.Next(ctx) {
+		var bot models.Bot
+		err := cur.Decode(&bot)
+		if err != nil {
+			log.Printf("GetAll: decoding: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		bots = append(bots, bot)
+	}
+	if err := cur.Err(); err != nil {
+		log.Printf("GetAll: cursor error: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, bots)
 }
 
 // A query to ask if a bot name is already in use

@@ -26,6 +26,7 @@ func (s *Server) registerRoutes() {
 			// Sessions
 			authorized.GET("/me", s.Auth.Me)
 			// Bots
+			authorized.GET("/users/bots", bots.GetUserBots)
 			authorized.GET("/bots/:id", bots.GetOne)
 			authorized.POST("/bots", bots.PostOne)
 			authorized.PUT("/bots/:id", bots.UpdateOne)

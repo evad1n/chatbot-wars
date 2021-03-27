@@ -46,7 +46,7 @@ func ConnectDB() error {
 	if err != nil {
 		return fmt.Errorf("client connecting to mongo: %v", err)
 	}
-	// Assing variables
+	// Assigning variables
 	DB = client.Database(dbName)
 	Bots = DB.Collection("bots")
 	Users = DB.Collection("users")

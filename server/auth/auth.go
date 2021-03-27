@@ -100,9 +100,17 @@ func extractToken(c *gin.Context) string {
 	return authArr[1]
 }
 
-func GetJWTClaims(c *gin.Context) *AuthClaims {
-	claims, _ := c.Get("claims")
-	return claims.(*AuthClaims)
+// Returns claims. Will abort if unable to get claims
+func getJWTClaims(c *gin.Context) *AuthClaims {
+	claims, exists := c.Get("claims")
+	if !exists {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+	authClaims, ok := claims.(*AuthClaims)
+	if !ok {
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+	return authClaims
 }
 
 func New(secret []byte) *AuthMiddleware {
@@ -166,7 +174,7 @@ func New(secret []byte) *AuthMiddleware {
 	}
 
 	auth.Me = func(c *gin.Context) {
-		claims := GetJWTClaims(c)
+		claims := getJWTClaims(c)
 		c.JSON(http.StatusOK, gin.H{
 			"uid":      claims.UID,
 			"username": claims.Username,
@@ -174,4 +182,49 @@ func New(secret []byte) *AuthMiddleware {
 	}
 
 	return &auth
+}
+
+// Returns UserID from claims. Will abort if user ID is not valid or no claims are present
+func GetUserID(c *gin.Context) primitive.ObjectID {
+	claims := getJWTClaims(c)
+	userID, err := db.ToMongoID(claims.UID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": fmt.Sprintf("User ID is invalid: %v", err.Error())})
+	}
+	return userID
+}
+
+// Returns the bot and if the user owns it. Should end handler if the the bot is not owned
+func IsAllowedBot(c *gin.Context, botIDHex string, userID primitive.ObjectID) (*models.Bot, bool) {
+	ctx, cancel := common.TimeoutCtx(c)
+	defer cancel()
+
+	// Decode to mongoDB ObjectID
+	botID, err := db.ToMongoID(botIDHex)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		return nil, false
+	}
+	filter := bson.M{"_id": botID}
+
+	res := db.Bots.FindOne(ctx, filter)
+	// If no doc is found
+	if res.Err() != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "no bot found with specified id"})
+		return nil, false
+	}
+
+	var bot models.Bot
+	if err := res.Decode(&bot); err != nil {
+		log.Printf("Checking user privileges: decoding: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return nil, false
+	}
+
+	if bot.UID != userID {
+		c.Status(http.StatusForbidden)
+		return nil, false
+	}
+
+	return &bot, true
 }
