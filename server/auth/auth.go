@@ -44,7 +44,8 @@ type (
 )
 
 const (
-	tokenTimeout = time.Hour * 48
+	// 20 day timeout
+	tokenTimeout = time.Hour * 24 * 20
 )
 
 func GenerateToken(user models.User, secret []byte) (string, string) {
@@ -53,9 +54,11 @@ func GenerateToken(user models.User, secret []byte) (string, string) {
 		Username: user.Username,
 		UID:      user.ID.Hex(),
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: now.Add(tokenTimeout).Unix(),
-			IssuedAt:  now.Unix(),
-			Issuer:    "chatbot-wars",
+			// Set to 0 to never expire
+			ExpiresAt: 0,
+			// ExpiresAt: now.Add(tokenTimeout).Unix(),
+			IssuedAt: now.Unix(),
+			Issuer:   "chatbot-wars",
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -65,7 +68,9 @@ func GenerateToken(user models.User, secret []byte) (string, string) {
 	if err != nil {
 		panic(err)
 	}
-	return t, now.Add(tokenTimeout).String()
+
+	// return t, now.Add(tokenTimeout).String()
+	return t, "never"
 }
 
 func ValidateToken(tokenString string, secret []byte) (*jwt.Token, error) {

@@ -46,7 +46,7 @@ function useProvideAuth() {
             let response = await API.post('/users', loginData);
             return response;
         } catch (error) {
-            console.error(error);
+            throw Error(error);
         }
     };
 
@@ -62,8 +62,9 @@ function useProvideAuth() {
                 uid: response.data.uid,
                 username: response.data.username
             });
+            return true;
         } catch (error) {
-            console.error(error);
+            throw Error(error);
         }
     };
 

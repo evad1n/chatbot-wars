@@ -70,6 +70,14 @@ func PostOne(c *gin.Context) {
 		return
 	}
 
+	// Enforce unique bot names
+	filter := bson.M{"name": bot.Name}
+	// Check if exists
+	if db.Bots.FindOne(ctx, filter).Err() == nil {
+		c.JSON(http.StatusConflict, gin.H{"message": "that bot name is already taken"})
+		return
+	}
+
 	userID := auth.GetUserID(c)
 
 	bot.UID = userID

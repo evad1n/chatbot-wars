@@ -1,8 +1,8 @@
 import { AppBar, CssBaseline, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { ExitToApp } from '@material-ui/icons';
-import React, { useEffect, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import React from 'react';
+import { NavLink, useHistory } from 'react-router-dom';
 import { useAuth } from 'scripts/auth';
 import ConfirmModal from './workshop/edit/ConfirmModal';
 
@@ -83,15 +83,12 @@ export default function NavMenu({ routes, children }) {
 
     const theme = useTheme();
     const classes = useStyles();
-    const [title, setTitle] = useState("Home");
-    // Match base path title 
-    let location = useLocation();
-    useEffect(() => {
-        let basePath = "/" + location.pathname.split("/")[1];
-        setTitle(routes[basePath].name);
-        return () => {
-        };
-    }, [location, routes, title]);
+    const history = useHistory();
+
+    function signout() {
+        logout();
+        history.push("/");
+    }
 
     return (
         <div className={classes.root}>
@@ -113,7 +110,7 @@ export default function NavMenu({ routes, children }) {
                                             <ExitToApp />
                                         </IconButton>
                                     )}
-                                    onConfirm={() => logout()}
+                                    onConfirm={signout}
                                     prompt={"Are you sure you want to log out?"}
                                     confirmText={"Logout"}
                                     color={theme.palette.secondary.main}

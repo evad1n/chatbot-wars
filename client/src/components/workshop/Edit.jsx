@@ -49,10 +49,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Edit() {
     const classes = useStyles();
+    const history = useHistory();
+
+
     const [loading, setLoading] = useState(true);
     const [bots, setBots] = useState([]);
 
-    const history = useHistory();
 
     // Fetch bot data
     const getBots = useCallback(

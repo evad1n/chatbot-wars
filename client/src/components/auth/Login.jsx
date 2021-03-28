@@ -2,7 +2,7 @@ import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Lock, Person } from '@material-ui/icons';
 import React, { useState } from 'react';
-import { Link as RouterLink, useHistory } from 'react-router-dom';
+import { Link as RouterLink, useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from 'scripts/auth';
 
 
@@ -33,6 +33,11 @@ const useStyles = makeStyles((theme) => ({
         alignSelf: "center",
         fontSize: 44,
         paddingRight: 10
+    },
+    failed: {
+        color: "red",
+        fontSize: 16,
+        padding: 0
     }
 }));
 
@@ -40,16 +45,20 @@ export default function Login() {
     const classes = useStyles();
     const { login } = useAuth();
     const history = useHistory();
+    const location = useLocation();
+
+    const [state, setState] = useState({
+        username: "",
+        password: "",
+    });
 
     const [errors, setErrors] = useState({
         username: "",
         password: "",
     });
 
-    const [state, setState] = useState({
-        username: "",
-        password: "",
-    });
+    const [failed, setFailed] = useState(false);
+
 
     const validate = async () => {
         let newErrors = {
@@ -71,13 +80,15 @@ export default function Login() {
         setErrors(() => newErrors);
     };
 
+    const { from } = location.state || { from: { pathname: "/" } };
+
     async function tryLogin() {
         try {
             await login(state.username, state.password);
             // Nav to home page
-            history.push("/");
+            history.replace(from);
         } catch (error) {
-            console.error(error);
+            setFailed(true);
         }
     }
 
@@ -90,6 +101,9 @@ export default function Login() {
                 </Grid>
                 <Grid item xs={12}>
                     <Grid container spacing={4} component={Paper} className={classes.formContainer} elevation={6}>
+                        {failed && <Grid item xs={12} className={classes.failed}>
+                            <Typography align={'center'}>Invalid username or password</Typography>
+                        </Grid>}
                         <Grid item xs={12} style={{ display: "flex" }}>
                             <Person className={classes.icon} color={"action"} />
                             <TextField

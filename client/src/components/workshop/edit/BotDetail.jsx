@@ -1,7 +1,7 @@
 import { AppBar, Button, CircularProgress, FormControl, Grid, List, ListItem, ListItemText, makeStyles, Tab, Tabs, TextField, Typography } from '@material-ui/core';
-import API from 'scripts/api';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import API from 'scripts/api';
 import LineTable from './LineTable';
 
 const useStyles = makeStyles((theme) => ({
@@ -41,11 +41,11 @@ const badLength = "Name must be between 3 and 30 characters";
 
 export default function BotDetail() {
     const classes = useStyles();
+    const { id } = useParams();
 
     const [loading, setLoading] = useState(true);
     const [tab, setTab] = React.useState(0);
     const [bot, setBot] = useState({});
-    const { id } = useParams();
     const [name, setName] = useState("");
     const [errorMessages, setErrorMessages] = useState([]);
     const [error, setError] = useState(false);
@@ -62,23 +62,20 @@ export default function BotDetail() {
         const validResponses = bot.responses.length >= 2;
         if (!validName) {
             setNameError(true);
-            setError(true);
         }
         if (!validGreetings) {
             errorMsgs.push("Must have at least 1 greeting");
-            setError(true);
         }
         if (!validQuestions) {
             errorMsgs.push("Must have at least 2 questions");
-            setError(true);
         }
         if (!validResponses) {
             errorMsgs.push("Must have at least 2 responses");
-            setError(true);
         }
 
         if (!validName || !validGreetings || !validQuestions || !validResponses) {
             setErrorMessages(errorMsgs);
+            setError(true);
             return;
         }
         updateBot();

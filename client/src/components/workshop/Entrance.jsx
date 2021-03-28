@@ -31,7 +31,6 @@ const useStyles = makeStyles((theme) => ({
 export default function Entrance() {
     const classes = useStyles();
 
-
     return (
         <React.Fragment>
             <Typography className={classes.title} align={'center'}>WELCOME TO THE WORKSHOP</Typography>

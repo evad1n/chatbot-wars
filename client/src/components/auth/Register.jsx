@@ -1,7 +1,8 @@
-import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
+import { Button, Grid, Paper, TextField, Typography, withStyles } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useState } from 'react';
-import { Link as RouterLink, useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink, useHistory, useLocation } from 'react-router-dom';
+import API from 'scripts/api';
 import { useAuth } from 'scripts/auth';
 
 
@@ -33,17 +34,28 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+const ValidationTextField = withStyles({
+    root: {
+        '& input:valid + fieldset': {
+            borderColor: 'green',
+            borderWidth: 2,
+        },
+        '& input:invalid + fieldset': {
+            borderColor: 'red',
+            borderWidth: 2,
+        },
+        '& input:valid:focus + fieldset': {
+            borderLeftWidth: 6,
+            padding: '4px !important', // override inline-style
+        },
+    },
+})(TextField);
+
 export default function Register() {
     const classes = useStyles();
     const { register, login } = useAuth();
     const history = useHistory();
-
-    const [errors, setErrors] = useState({
-        firstName: "",
-        lastName: "",
-        username: "",
-        password: "",
-    });
+    const location = useLocation();
 
     const [state, setState] = useState({
         firstName: "",
@@ -52,11 +64,43 @@ export default function Register() {
         password: "",
     });
 
+    const [errors, setErrors] = useState({
+        firstName: "",
+        lastName: "",
+        username: "",
+        password: "",
+    });
+
+    useEffect(() => {
+        async function checkUsername(username) {
+            if (username.length === 0)
+                return;
+            try {
+                let response = await API.get(`/unique/users/${username}`);
+                console.log(response.data, username, state.username);
+                if (!response.data.valid && username === state.username) {
+                    setErrors(errors => {
+                        return { ...errors, username: "That username is taken" };
+                    });
+                } else {
+                    setErrors(errors => {
+                        return { ...errors, username: "" };
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        checkUsername(state.username);
+    }, [state.username]);
+
+
     function validate() {
         let newErrors = {
             firstName: "",
             lastName: "",
-            username: "",
+            username: state.username,
             password: "",
         };
         let valid = true;
@@ -82,13 +126,14 @@ export default function Register() {
         setErrors(() => newErrors);
     };
 
+    const { from } = location.state || { from: { pathname: "/" } };
+
     async function tryRegister() {
         try {
             await register(state);
             await login(state.username, state.password);
             // Nav to home page
-            history.push("/");
-
+            history.replace(from);
         } catch (error) {
             console.error(error);
         }
@@ -118,8 +163,8 @@ export default function Register() {
                         </Grid>
                         <Grid item xs={12} className={classes.formRow}>
                             <TextField
-                                error={state.username.length === 0 && errors.username.length > 0}
-                                helperText={state.username.length === 0 ? errors.username : ""}
+                                error={errors.username.length > 0}
+                                helperText={errors.username}
                                 onChange={event => setState({ ...state, username: event.target.value })}
                                 label="Username"
                                 variant="outlined" />
