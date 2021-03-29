@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -31,7 +32,7 @@ var (
 func ConnectDB() error {
 	pwd := os.Getenv("MONGO_PWD")
 	if pwd == "" {
-		log.Fatalln("Can't find MONGO_PWD in environemnt variables")
+		return errors.New("Can't find MONGO_PWD in environment variables")
 	}
 	// Connect to MongoDB
 	mongoURI := fmt.Sprintf("mongodb+srv://%s:%s@%s.vsqii.mongodb.net/%s?retryWrites=true&w=majority", username, pwd, cluster, dbName)
