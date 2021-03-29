@@ -12,21 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-const (
-	happy models.Mood = iota
-	angry
-	sad
-)
-
-const (
-	chatInterval = 2 // Add a line every x seconds
-	timeout      = 3 // timeout * chatInterval is the timeout threshold in seconds
-)
-
-var (
-	rooms = make(map[string]*models.Room)
-)
-
 // Create a room
 func PostOne(c *gin.Context) {
 	_, cancel := common.TimeoutCtx(c)
@@ -42,10 +27,10 @@ func PostOne(c *gin.Context) {
 	}
 
 	// Add room
-	newRoom := &models.Room{
+	newRoom := &Room{
 		Hash:       hash,
 		Bots:       []models.Bot{},
-		Transcript: []models.Message{},
+		Transcript: []Message{},
 		Active:     true,
 	}
 	rooms[hash] = newRoom

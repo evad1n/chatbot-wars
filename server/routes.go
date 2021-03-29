@@ -42,6 +42,9 @@ func (s *Server) registerRoutes() {
 		api.PUT("/rooms/:roomHash/:botID", rooms.UpdateOne)
 		api.DELETE("/rooms/:roomHash", rooms.DeleteOne)
 
+		// Sockets
+		api.GET("/ws", rooms.Socket)
+
 		// Other
 		api.GET("/unique/users/:username", users.UniqueName)
 		api.GET("/unique/bots/:name", bots.UniqueName)
