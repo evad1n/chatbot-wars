@@ -1,30 +1,38 @@
-package models
+package rooms
 
 import (
 	"math/rand"
 	"time"
+
+	"github.com/evad1n/chatbot-wars/models"
+	"github.com/gorilla/websocket"
 )
 
 type (
 	// Room is where the bots fight
 	Room struct {
 		Hash       string
-		Bots       []Bot
+		Bots       []models.Bot
 		Transcript []Message // History of messages
 		LastGet    int       // For inactivity/timeout
 		Active     bool
+		conn       *websocket.Conn
 	}
 
 	// Message contains the line info and the bot name
 	Message struct {
-		Name string `json:"name,omitempty"`
-		Line Line   `json:"line,omitempty"`
+		Name string      `json:"name,omitempty"`
+		Line models.Line `json:"line,omitempty"`
 	}
 )
 
 const (
 	chatInterval = 2 // Add a line every x seconds
 	timeout      = 3 // timeout * chatInterval is the timeout threshold in seconds
+)
+
+var (
+	rooms = make(map[string]*Room)
 )
 
 // Start the bot conversation in a room
@@ -68,7 +76,7 @@ func (r *Room) Start(cleanup func()) {
 			}
 		}
 
-		var lines []Line
+		var lines []models.Line
 		switch lineType {
 		case 0:
 			lines = bot.Greetings

@@ -103,7 +103,7 @@ export default function Register() {
         let newErrors = {
             firstName: "",
             lastName: "",
-            username: state.username,
+            username: errors.username,
             password: "",
         };
         let valid = true;
