@@ -97,7 +97,7 @@ export default function Login() {
         <React.Fragment>
             <Grid container direction={'row'} style={{ margin: 0 }}>
                 <Grid item xs={12}>
-                    <Typography className={classes.title} align={'center'}>Login to see your bots</Typography>
+                    <Typography className={classes.title} align={'center'}>Login to edit your bots</Typography>
                 </Grid>
                 <Grid item xs={12}>
                     <Grid container spacing={4} component={Paper} className={classes.formContainer} elevation={6}>

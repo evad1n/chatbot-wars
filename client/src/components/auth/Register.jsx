@@ -1,4 +1,4 @@
-import { Button, Grid, Paper, TextField, Typography, withStyles } from '@material-ui/core';
+import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useHistory, useLocation } from 'react-router-dom';
@@ -31,25 +31,28 @@ const useStyles = makeStyles((theme) => ({
         "&:hover": {
             color: theme.palette.secondary.main
         }
-    }
-}));
-
-const ValidationTextField = withStyles({
-    root: {
-        '& input:valid + fieldset': {
+    },
+    valid: {
+        '& label.MuiInputLabel-formControl': {
+            color: 'green',
+        },
+        '& p.MuiFormHelperText-root': {
+            color: 'green',
+        },
+        '& input + fieldset': {
             borderColor: 'green',
             borderWidth: 2,
         },
-        '& input:invalid + fieldset': {
-            borderColor: 'red',
+        '& input:valid:focus + fieldset': {
+            borderColor: 'green',
             borderWidth: 2,
         },
-        '& input:valid:focus + fieldset': {
-            borderLeftWidth: 6,
-            padding: '4px !important', // override inline-style
+        '& input:valid:hover + fieldset': {
+            borderColor: 'green',
+            borderWidth: 2,
         },
     },
-})(TextField);
+}));
 
 export default function Register() {
     const classes = useStyles();
@@ -71,13 +74,13 @@ export default function Register() {
         password: "",
     });
 
+    // Check unique username
     useEffect(() => {
         async function checkUsername(username) {
             if (username.length === 0)
                 return;
             try {
                 let response = await API.get(`/unique/users/${username}`);
-                console.log(response.data, username, state.username);
                 if (!response.data.valid && username === state.username) {
                     setErrors(errors => {
                         return { ...errors, username: "That username is taken" };
@@ -163,8 +166,9 @@ export default function Register() {
                         </Grid>
                         <Grid item xs={12} className={classes.formRow}>
                             <TextField
+                                className={errors.username.length === 0 && state.username.length > 0 ? classes.valid : null}
                                 error={errors.username.length > 0}
-                                helperText={errors.username}
+                                helperText={errors.username.length === 0 && state.username.length !== 0 ? "Valid username" : errors.username}
                                 onChange={event => setState({ ...state, username: event.target.value })}
                                 label="Username"
                                 variant="outlined" />

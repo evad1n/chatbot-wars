@@ -34,10 +34,28 @@ const useStyles = makeStyles((theme) => ({
         alignSelf: "center",
         justifyContent: "center",
         flexGrow: 1
-    }
+    },
+    valid: {
+        '& label.MuiInputLabel-formControl': {
+            color: 'green',
+        },
+        '& p.MuiFormHelperText-root': {
+            color: 'green',
+        },
+        '& input + fieldset': {
+            borderColor: 'green',
+            borderWidth: 2,
+        },
+        '& input:valid:focus + fieldset': {
+            borderColor: 'green',
+            borderWidth: 2,
+        },
+        '& input:valid:hover + fieldset': {
+            borderColor: 'green',
+            borderWidth: 2,
+        },
+    },
 }));
-
-const badLength = "Name must be between 3 and 30 characters";
 
 export default function BotDetail() {
     const classes = useStyles();
@@ -51,17 +69,18 @@ export default function BotDetail() {
     const [error, setError] = useState(false);
 
     // General config
-    const [nameError, setNameError] = useState(false);
+    const [nameError, setNameError] = useState("");
 
-    const validate = () => {
+    const validName = name.length >= 3 && name.length <= 30;
+
+    const validate = async () => {
         let errorMsgs = [];
 
-        const validName = name.length >= 3 && name.length <= 30;
-        const validGreetings = bot.greetings.length >= 2;
+        const validGreetings = bot.greetings.length >= 1;
         const validQuestions = bot.questions.length >= 2;
         const validResponses = bot.responses.length >= 2;
         if (!validName) {
-            setNameError(true);
+            setNameError("Name must be between 3 and 30 characters");
         }
         if (!validGreetings) {
             errorMsgs.push("Must have at least 1 greeting");
@@ -78,8 +97,45 @@ export default function BotDetail() {
             setError(true);
             return;
         }
-        updateBot();
+
+        if (bot.name !== name) {
+            try {
+                let response = await API.get(`/unique/bots/${name}`);
+                if (!response.data.valid) {
+                    setNameError("That bot name is taken");
+                } else {
+                    setNameError("");
+                    updateBot();
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        } else {
+            updateBot();
+        }
     };
+
+    // Check unique bot name
+    useEffect(() => {
+        async function checkBotName(currentName) {
+            if (!validName) {
+                setNameError("");
+                return;
+            }
+            try {
+                let response = await API.get(`/unique/bots/${currentName}`);
+                if (!response.data.valid && currentName === name && currentName !== bot.name) {
+                    setNameError("That bot name is taken");
+                } else {
+                    setNameError("");
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        checkBotName(name);
+    }, [name, validName, bot.name]);
 
     const changeName = (event) => {
         setName(event.target.value);
@@ -116,8 +172,7 @@ export default function BotDetail() {
         setTab(newValue);
     };
 
-
-    // Display as tabs of lines
+    const showValidName = nameError.length === 0 && validName && name !== bot.name;
 
     return (
         <React.Fragment>
@@ -145,7 +200,15 @@ export default function BotDetail() {
                             <Grid container spacing={3} item xs={12} className={classes.generalContainer}>
                                 <Grid item xs={12}>
                                     <FormControl fullWidth>
-                                        <TextField autoFocus error={nameError} helperText={nameError ? badLength : ""} label="Name" variant="outlined" value={name} onChange={changeName} />
+                                        <TextField
+                                            autoFocus
+                                            className={showValidName ? classes.valid : null}
+                                            error={nameError.length > 0}
+                                            helperText={showValidName ? "Valid bot name" : nameError}
+                                            label="Name"
+                                            variant="outlined"
+                                            value={name}
+                                            onChange={changeName} />
                                     </FormControl>
                                 </Grid>
                             </Grid>

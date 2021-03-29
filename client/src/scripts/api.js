@@ -2,9 +2,6 @@ import axios from 'axios';
 
 const API = axios.create({
     baseURL: "/api",
-    // headers: {
-    //     Authorization: "Bearer " + localStorage.getItem("jwt_token")
-    // }
 });
 
 // Add stored token to header for each request

@@ -69,10 +69,11 @@ export default function Create() {
         }
     };
 
-    const handleComplete = () => {
+    const handleComplete = async () => {
         const newCompleted = new Set(completed);
         // Call child validation method
-        if (!steps[activeStep].validate()) {
+        let valid = await steps[activeStep].validate();
+        if (!valid) {
             newCompleted.delete(activeStep);
             setCompleted(newCompleted);
             return;

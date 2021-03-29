@@ -18,7 +18,8 @@ export const useAuth = () => {
 
 // Provider hook that creates auth object and handles state
 function useProvideAuth() {
-    const [user, setUser] = useState(false);
+    // Start as true, and once no user is discovered, routes will be rerendered
+    const [user, setUser] = useState(true);
 
     // Initial attempt to fetch jwt
     useEffect(() => {

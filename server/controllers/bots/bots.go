@@ -9,7 +9,6 @@ import (
 	"github.com/evad1n/chatbot-wars/db"
 	"github.com/evad1n/chatbot-wars/models"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -108,13 +107,18 @@ func UpdateOne(c *gin.Context) {
 
 	// Bind request body
 	var updatedBot models.Bot
-	if err := c.ShouldBindJSON(&updatedBot); err != nil {
-		if errs, ok := err.(validator.ValidationErrors); ok {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": validator.ValidationErrors(errs)})
-		} else {
-			c.String(http.StatusUnprocessableEntity, err.Error())
-		}
+	if err := common.BindWithErrors(c, &bot); err != nil {
 		return
+	}
+
+	// Enforce unique bot names
+	if bot.Name != updatedBot.Name {
+		filter := bson.M{"name": updatedBot.Name}
+		// Check if exists
+		if db.Bots.FindOne(ctx, filter).Err() == nil {
+			c.JSON(http.StatusConflict, gin.H{"message": "that bot name is already taken"})
+			return
+		}
 	}
 
 	// Preserve UserID
