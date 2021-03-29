@@ -41,7 +41,7 @@ func CreateServer() (Server, error) {
 	// Auth
 	secret := os.Getenv("JWT_KEY")
 	if secret == "" {
-		return server, errors.New("No JWT secret key found")
+		return server, errors.New("No JWT secret key found in environment variables")
 	}
 
 	server.Auth = auth.New([]byte(secret))
