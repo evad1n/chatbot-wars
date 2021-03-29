@@ -41,7 +41,10 @@ func ValidationErrorMessages(verr validator.ValidationErrors) []ValidationError 
 		if fe.Param() != "" {
 			err = fmt.Sprintf("%s=%s", err, fe.Param())
 		}
-		errs = append(errs, ValidationError{Field: fmt.Sprintf("%s (%s)", fe.Field(), fe.Namespace()), Reason: err})
+		errs = append(errs, ValidationError{
+			Field: fmt.Sprintf("%s (%s)", fe.Field(),
+				fe.Namespace()), Reason: err,
+		})
 	}
 
 	return errs
@@ -51,7 +54,7 @@ func ValidationErrorMessages(verr validator.ValidationErrors) []ValidationError 
 func BindWithErrors(c *gin.Context, obj interface{}) error {
 	if err := c.ShouldBindJSON(obj); err != nil {
 		if errs, ok := err.(validator.ValidationErrors); ok {
-			c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": validator.ValidationErrors(errs)})
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": ValidationErrorMessages(errs)})
 		} else {
 			c.String(http.StatusUnprocessableEntity, err.Error())
 		}

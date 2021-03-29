@@ -23,7 +23,6 @@ function useProvideAuth() {
 
     // Initial attempt to fetch jwt
     useEffect(() => {
-
         async function fetchData() {
             let token = localStorage.getItem("jwt_token");
             if (token != null) {
@@ -36,6 +35,8 @@ function useProvideAuth() {
                 } catch (error) {
                     console.error(error);
                 }
+            } else {
+                setUser(false);
             }
         }
 
