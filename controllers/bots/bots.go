@@ -10,6 +10,15 @@ import (
 	"github.com/evad1n/chatbot-wars/models"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+type (
+	BotOverview struct {
+		ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+		Name string             `json:"name" binding:"required,min=3,max=30"`
+	}
 )
 
 func GetOne(c *gin.Context) {
@@ -31,8 +40,10 @@ func GetAll(c *gin.Context) {
 	ctx, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
-	bots := []models.Bot{}
-	cur, err := db.Bots.Find(ctx, bson.M{})
+	bots := []BotOverview{}
+	// Only get name and id
+	fields := bson.M{"name": 1}
+	cur, err := db.Bots.Find(ctx, bson.M{}, options.Find().SetProjection(fields))
 	if err != nil {
 		log.Printf("GetAll: finding: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -41,7 +52,7 @@ func GetAll(c *gin.Context) {
 	// Iterate and decode
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
-		var bot models.Bot
+		var bot BotOverview
 		err := cur.Decode(&bot)
 		if err != nil {
 			log.Printf("GetAll: decoding: %v\n", err)
@@ -164,9 +175,11 @@ func GetUserBots(c *gin.Context) {
 
 	userID := auth.GetUserID(c)
 
-	bots := []models.Bot{}
+	bots := []BotOverview{}
 
-	cur, err := db.Bots.Find(ctx, bson.M{"_uid": userID})
+	// Only get name and id
+	fields := bson.M{"name": 1}
+	cur, err := db.Bots.Find(ctx, bson.M{"_uid": userID}, options.Find().SetProjection(fields))
 	if err != nil {
 		log.Printf("GetUserBots: finding: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -175,7 +188,7 @@ func GetUserBots(c *gin.Context) {
 
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
-		var bot models.Bot
+		var bot BotOverview
 		err := cur.Decode(&bot)
 		if err != nil {
 			log.Printf("GetUserBots: decoding: %v\n", err)
