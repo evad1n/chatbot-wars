@@ -6,5 +6,6 @@ yarn build
 
 # Move to server folder
 cd ..
+# Remove old build
 rm -rf ./server/public
 mv ./client/build ./server/public

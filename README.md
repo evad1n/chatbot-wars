@@ -72,6 +72,7 @@ Create user                    | POST   | /users                            | No
 Name                           | Method | Path                              | RequireAuth
 -------------------------------|--------|-----------------------------------|------------
 Retrieve bots collection       | GET    | /bots                             | No
+Retrieve user bots             | GET    | /users/bots                       | Yes
 Retrieve bot                   | GET    | /bots/*:id*                       | Yes
 Create bot                     | POST   | /bots                             | Yes
 Update bot                     | PUT    | /bots/*:id*                       | Yes
