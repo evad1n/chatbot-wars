@@ -36,14 +36,8 @@ func (s *Server) registerRoutes() {
 			authorized.DELETE("/bots/:id/:lineType/:index", lines.DeleteOne)
 		}
 
-		// Fight rooms
-		api.POST("/rooms", rooms.PostOne)
-		api.GET("/rooms/:roomHash", rooms.GetOne)
-		api.PUT("/rooms/:roomHash/:botID", rooms.UpdateOne)
-		api.DELETE("/rooms/:roomHash", rooms.DeleteOne)
-
-		// Sockets
-		api.GET("/ws", rooms.Socket)
+		// Rooms socket
+		api.GET("/rooms", rooms.ListenRoom)
 
 		// Other
 		api.GET("/unique/users/:username", users.UniqueName)

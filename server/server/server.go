@@ -33,7 +33,8 @@ func CreateServer() (Server, error) {
 	server.Router = gin.Default()
 
 	// Using hashMode history so I don't have to use my brain
-	server.Router.Use(static.ServeRoot("/", "./public"))
+	// server.Router.Use(static.ServeRoot("/", "./public"))
+	server.Router.Use(static.ServeRoot("/", "./test"))
 
 	// CORS
 	server.Router.Use(cors.Default())
