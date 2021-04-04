@@ -31,28 +31,29 @@ type (
 		Password string `json:"password" binding:"required,gt=0"`
 	}
 
-	UserData struct {
-		ID       primitive.ObjectID `json:"id"`
-		Username string             `json:"username"`
-	}
-
 	AuthClaims struct {
 		jwt.StandardClaims
+		UID string `json:"uid"`
+		PublicUserData
+	}
+	// The data that will be revealed to the client
+	PublicUserData struct {
 		Username string `json:"username"`
-		UID      string `json:"uid"`
 	}
 )
 
 const (
-	// 20 day timeout
-	tokenTimeout = time.Hour * 24 * 20
+// 20 day timeout
+// tokenTimeout = time.Hour * 24 * 20
 )
 
 func GenerateToken(user models.User, secret []byte) (string, string) {
 	now := time.Now()
 	claims := AuthClaims{
-		Username: user.Username,
-		UID:      user.ID.Hex(),
+		UID: user.ID.Hex(),
+		PublicUserData: PublicUserData{
+			Username: user.Username,
+		},
 		StandardClaims: jwt.StandardClaims{
 			// Set to 0 to never expire
 			ExpiresAt: 0,
@@ -91,7 +92,7 @@ func ValidateToken(tokenString string, secret []byte) (*jwt.Token, error) {
 	if token.Valid {
 		return token, nil
 	} else {
-		return nil, errors.New("Invalid token")
+		return nil, errors.New("invalid token")
 	}
 }
 
@@ -125,6 +126,8 @@ func New(secret []byte) *AuthMiddleware {
 		return func(c *gin.Context) {
 			tokenString := extractToken(c)
 			if token, err := ValidateToken(tokenString, secret); err != nil {
+				// If you don't want 401 error messages then swap these comments
+				// c.AbortWithStatus(http.StatusUnauthorized)
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 					"message": err.Error(),
 				})
@@ -171,19 +174,17 @@ func New(secret []byte) *AuthMiddleware {
 
 		// Success
 		c.JSON(http.StatusCreated, gin.H{
-			"token":    token,
-			"expires":  expires,
-			"uid":      user.ID.Hex(),
-			"username": user.Username,
+			"token":   token,
+			"expires": expires,
+			"user": PublicUserData{
+				Username: user.Username,
+			},
 		})
 	}
 
 	auth.Me = func(c *gin.Context) {
 		claims := getJWTClaims(c)
-		c.JSON(http.StatusOK, gin.H{
-			"uid":      claims.UID,
-			"username": claims.Username,
-		})
+		c.JSON(http.StatusOK, claims.PublicUserData)
 	}
 
 	return &auth

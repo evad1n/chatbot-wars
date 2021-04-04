@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sockets Test</title>
+    <style>
+        #messages {
+            display: flex;
+            border: solid 1px black;
+            margin: 30px 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Sockets Test</h2>
+
+    <h4>bot ids</h4>
+    <ul>
+        <li>60553bb197614b1c887a8c18 - Will</li>
+        <li>6053bc5e96bde1e247f89841 - Ammon</li>
+    </ul>
+
+    <input type="text">
+    <button onclick="addBot()">Add Bot</button>
+    <button onclick="start()">Start Room</button>
+
+    <div id="messages">
+        <ul id="message-list">
+            <li>No messages</li>
+        </ul>
+    </div>
+
+
+    <script>
+        // FIX: try to use relative host for websocket
+        let ws = new WebSocket("ws://localhost:8080/api/rooms");
+        // let ws = new WebSocket("/api/rooms");
+
+        let list = document.getElementById("message-list")
+        let input = document.querySelector("input")
+
+        let msgs = [];
+
+        ws.onmessage = event => {
+            console.log(event.data)
+            let msg = JSON.parse(event.data);
+            msgs.push(msg);
+
+            list.innerHTML = "";
+            for (const m of msgs) {
+                // Redraw list
+                let item = document.createElement("li");
+                item.innerText = `${m.name}: (${m.line.mood})${m.line.text}`;
+                list.appendChild(item)
+            }
+        }
+
+        function addBot() {
+            let data = {
+                type: "add",
+                payload: input.value
+            }
+
+            ws.send(JSON.stringify(data))
+        }
+
+        function start() {
+            ws.send(JSON.stringify({
+                type: "start"
+            }))
+        }
+    </script>
+</body>
+
+</html>
