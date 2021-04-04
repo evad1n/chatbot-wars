@@ -1,0 +1,14 @@
+{
+    "restartable": "rs",
+    "ignore": [
+        ".git"
+    ],
+    "verbose": true,
+    "watch": [
+        "./"
+    ],
+    "env": {
+        "PORT": "5000"
+    },
+    "ext": "go"
+}

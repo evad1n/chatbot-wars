@@ -10,7 +10,6 @@ import (
 
 var (
 	host = ""
-	port string
 )
 
 func init() {
