@@ -59,6 +59,7 @@ export default function Arena() {
         setActive(true);
     };
 
+    // TODO: start socket here and maybe pass it down?
     // Initial load of bots
     useEffect(() => {
         // Fetch bots
