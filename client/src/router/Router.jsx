@@ -15,7 +15,7 @@ import Entrance from 'components/workshop/Entrance';
 import BotDetail from 'components/workshop/edit/BotDetail';
 import Login from 'components/auth/Login';
 import Register from 'components/auth/Register';
-import { useAuth } from 'scripts/auth';
+import { useAuth } from 'hooks/auth';
 
 
 export const routes = {

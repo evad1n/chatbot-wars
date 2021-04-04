@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { ExitToApp } from '@material-ui/icons';
 import React from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
-import { useAuth } from 'scripts/auth';
+import { useAuth } from 'hooks/auth';
 import ConfirmModal from './workshop/edit/ConfirmModal';
 
 

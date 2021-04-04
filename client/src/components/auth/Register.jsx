@@ -2,8 +2,10 @@ import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useHistory, useLocation } from 'react-router-dom';
-import API from 'scripts/api';
-import { useAuth } from 'scripts/auth';
+import API from 'api';
+import { useAuth } from 'hooks/auth';
+import useDebounce from 'hooks/debounce';
+
 
 
 const useStyles = makeStyles((theme) => ({
@@ -74,6 +76,9 @@ export default function Register() {
         password: "",
     });
 
+    const [checkedUsername, setCheckedUsername] = useState(false);
+    const debouncedUsername = useDebounce(state.username, 400);
+
     // Check unique username
     useEffect(() => {
         async function checkUsername(username) {
@@ -81,7 +86,7 @@ export default function Register() {
                 return;
             try {
                 let response = await API.get(`/unique/users/${username}`);
-                if (!response.data.valid && username === state.username) {
+                if (!response.data.valid && username === debouncedUsername) {
                     setErrors(errors => {
                         return { ...errors, username: "That username is taken" };
                     });
@@ -90,13 +95,14 @@ export default function Register() {
                         return { ...errors, username: "" };
                     });
                 }
+                setCheckedUsername(true);
             } catch (error) {
                 console.error(error);
             }
         }
 
-        checkUsername(state.username);
-    }, [state.username]);
+        checkUsername(debouncedUsername);
+    }, [debouncedUsername]);
 
 
     function validate() {
@@ -166,10 +172,14 @@ export default function Register() {
                         </Grid>
                         <Grid item xs={12} className={classes.formRow}>
                             <TextField
-                                className={errors.username.length === 0 && state.username.length > 0 ? classes.valid : null}
+                                className={errors.username.length === 0 && state.username.length > 0 && checkedUsername ? classes.valid : null}
                                 error={errors.username.length > 0}
-                                helperText={errors.username.length === 0 && state.username.length !== 0 ? "Valid username" : errors.username}
-                                onChange={event => setState({ ...state, username: event.target.value })}
+                                helperText={errors.username.length === 0 && state.username.length !== 0 && checkedUsername ? "Valid username" : errors.username}
+                                onChange={event => {
+                                    setState({ ...state, username: event.target.value });
+                                    setErrors({ ...errors, username: "" });
+                                    setCheckedUsername(false);
+                                }}
                                 label="Username"
                                 variant="outlined" />
                             <TextField

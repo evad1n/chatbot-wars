@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link as RouterLink, useHistory } from 'react-router-dom';
-import API from 'scripts/api';
+import API from 'api';
 import ConfirmModal from './edit/ConfirmModal';
 
 

@@ -35,7 +35,7 @@ export default function ConfirmModal(props) {
             {render && render(handleOpen)}
             <Dialog onClose={handleClose} open={open}>
                 <DialogTitle >{prompt}</DialogTitle>
-                <DialogActions style={{ justifyContent: "center" }}>
+                <DialogActions style={{ justifyContent: "center", marginBottom: 10 }}>
                     <Button autoFocus onClick={handleClose} variant="contained" color="primary">Cancel</Button>
                     <Button
                         onClick={handleConfirm}

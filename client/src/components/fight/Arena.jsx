@@ -1,5 +1,5 @@
 import { Button, FormControl, Grid, InputLabel, List, ListItem, ListItemText, ListSubheader, makeStyles, MenuItem, Paper, Select } from '@material-ui/core';
-import API from 'scripts/api';
+import API from 'api';
 import React, { useEffect, useRef, useState } from 'react';
 import Transcript from './Transcript';
 

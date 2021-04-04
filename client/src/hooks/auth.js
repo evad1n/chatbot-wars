@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import API from 'scripts/api';
+import API from 'api';
 
 const authContext = createContext();
 
@@ -28,10 +28,7 @@ function useProvideAuth() {
             if (token != null) {
                 try {
                     let response = await API.get('/me');
-                    setUser({
-                        uid: response.data.uid,
-                        username: response.data.username
-                    });
+                    setUser(response.data);
                 } catch (error) {
                     console.error(error);
                 }
@@ -60,10 +57,7 @@ function useProvideAuth() {
             });
             // Save token in localstorage
             localStorage.setItem("jwt_token", response.data.token);
-            setUser({
-                uid: response.data.uid,
-                username: response.data.username
-            });
+            setUser(response.data.user);
             return true;
         } catch (error) {
             throw Error(error);

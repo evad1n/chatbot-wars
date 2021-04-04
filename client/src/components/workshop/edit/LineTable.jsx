@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogTitle, Grid, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
-import API, { moods } from 'scripts/api';
+import API, { moods } from 'api';
 import React, { useState } from 'react';
 import LineInput from '../create/LineInput';
 import ConfirmModal from './ConfirmModal';

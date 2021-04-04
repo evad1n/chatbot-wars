@@ -118,7 +118,7 @@ func UpdateOne(c *gin.Context) {
 
 	// Bind request body
 	var updatedBot models.Bot
-	if err := common.BindWithErrors(c, &bot); err != nil {
+	if err := common.BindWithErrors(c, &updatedBot); err != nil {
 		return
 	}
 

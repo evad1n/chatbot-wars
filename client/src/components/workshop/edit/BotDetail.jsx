@@ -1,8 +1,9 @@
 import { AppBar, Button, CircularProgress, FormControl, Grid, List, ListItem, ListItemText, makeStyles, Tab, Tabs, TextField, Typography } from '@material-ui/core';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import API from 'scripts/api';
+import API from 'api';
 import LineTable from './LineTable';
+import useDebounce from 'hooks/debounce';
 
 const useStyles = makeStyles((theme) => ({
     name: {
@@ -57,6 +58,10 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+function validName(name) {
+    return name.length >= 3 && name.length <= 30;
+}
+
 export default function BotDetail() {
     const classes = useStyles();
     const { id } = useParams();
@@ -71,16 +76,15 @@ export default function BotDetail() {
     // General config
     const [nameError, setNameError] = useState("");
 
-    const validName = name.length >= 3 && name.length <= 30;
-
     const validate = async () => {
         let errorMsgs = [];
 
         const validGreetings = bot.greetings.length >= 1;
         const validQuestions = bot.questions.length >= 2;
         const validResponses = bot.responses.length >= 2;
-        if (!validName) {
+        if (!validName(name)) {
             setNameError("Name must be between 3 and 30 characters");
+            errorMsgs.push("Name must be between 3 and 30 characters");
         }
         if (!validGreetings) {
             errorMsgs.push("Must have at least 1 greeting");
@@ -92,7 +96,7 @@ export default function BotDetail() {
             errorMsgs.push("Must have at least 2 responses");
         }
 
-        if (!validName || !validGreetings || !validQuestions || !validResponses) {
+        if (!validName(name) || !validGreetings || !validQuestions || !validResponses) {
             setErrorMessages(errorMsgs);
             setError(true);
             return;
@@ -111,34 +115,40 @@ export default function BotDetail() {
                 console.error(error);
             }
         } else {
-            updateBot();
+            setNameError("That's the same name!");
         }
     };
+
+    const [checkedName, setCheckedName] = useState(false);
+    const debouncedName = useDebounce(name, 400);
 
     // Check unique bot name
     useEffect(() => {
         async function checkBotName(currentName) {
-            if (!validName) {
+            if (!validName(currentName)) {
                 setNameError("");
                 return;
             }
             try {
                 let response = await API.get(`/unique/bots/${currentName}`);
-                if (!response.data.valid && currentName === name && currentName !== bot.name) {
+                if (!response.data.valid && currentName === debouncedName && currentName !== bot.name) {
                     setNameError("That bot name is taken");
                 } else {
                     setNameError("");
                 }
+                setCheckedName(true);
             } catch (error) {
                 console.error(error);
             }
         }
 
-        checkBotName(name);
-    }, [name, validName, bot.name]);
+        checkBotName(debouncedName);
+    }, [debouncedName, bot.name]);
 
     const changeName = (event) => {
         setName(event.target.value);
+        setNameError("");
+        setCheckedName(false);
     };
 
     // Fetch bot data
@@ -172,7 +182,7 @@ export default function BotDetail() {
         setTab(newValue);
     };
 
-    const showValidName = nameError.length === 0 && validName && name !== bot.name;
+    const showValidName = checkedName && nameError.length === 0 && validName(name) && name !== bot.name;
 
     return (
         <React.Fragment>

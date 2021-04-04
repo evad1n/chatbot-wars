@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Lock, Person } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { Link as RouterLink, useHistory, useLocation } from 'react-router-dom';
-import { useAuth } from 'scripts/auth';
+import { useAuth } from 'hooks/auth';
 
 
 

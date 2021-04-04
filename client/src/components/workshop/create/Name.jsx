@@ -1,6 +1,7 @@
 import { FormControl, Grid, makeStyles, TextField, Typography } from '@material-ui/core';
 import React, { useState, useEffect, useCallback } from 'react';
-import API from 'scripts/api';
+import API from 'api';
+import useDebounce from 'hooks/debounce';
 
 const useStyles = makeStyles((theme) => ({
     valid: {
@@ -25,17 +26,19 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+function validName(name) {
+    return name.length >= 3 && name.length <= 30;
+}
+
 export default function Name({ value, updateHandler: updateName, setValidator, titleStyle }) {
     const classes = useStyles();
 
     const [name, setName] = useState(value);
     const [error, setError] = useState("");
 
-    const validName = name.length >= 3 && name.length <= 30;
-
     const validate = useCallback(
         async () => {
-            if (!validName) {
+            if (!validName(name)) {
                 setError("Name must be between 3 and 30 characters");
                 return false;
             }
@@ -54,30 +57,34 @@ export default function Name({ value, updateHandler: updateName, setValidator, t
             }
             return true;
         },
-        [name, updateName, validName],
+        [name, updateName],
     );
+
+    const [checkedName, setCheckedName] = useState(false);
+    const debouncedName = useDebounce(name, 400);
 
     // Check unique bot name
     useEffect(() => {
         async function checkBotName(currentName) {
-            if (!validName) {
+            if (!validName(currentName)) {
                 setError("");
                 return;
             }
             try {
                 let response = await API.get(`/unique/bots/${currentName}`);
-                if (!response.data.valid && currentName === name) {
+                if (!response.data.valid && currentName === debouncedName) {
                     setError("That bot name is taken");
                 } else {
                     setError("");
                 }
+                setCheckedName(true);
             } catch (error) {
                 console.error(error);
             }
         }
 
-        checkBotName(name);
-    }, [name, validName]);
+        checkBotName(debouncedName);
+    }, [debouncedName]);
 
     useEffect(() => {
         setValidator(validate);
@@ -85,6 +92,8 @@ export default function Name({ value, updateHandler: updateName, setValidator, t
 
     const changeName = (event) => {
         setName(event.target.value);
+        setError("");
+        setCheckedName(false);
     };
 
     return (
@@ -96,9 +105,9 @@ export default function Name({ value, updateHandler: updateName, setValidator, t
                 <FormControl fullWidth>
                     <TextField
                         autoFocus
-                        className={error.length === 0 && validName ? classes.valid : null}
+                        className={error.length === 0 && validName && checkedName ? classes.valid : null}
                         error={error.length > 0}
-                        helperText={error.length === 0 && validName ? "Valid bot name" : error}
+                        helperText={error.length === 0 && validName && checkedName ? "Valid bot name" : error}
                         label="Name"
                         variant="outlined"
                         value={name}

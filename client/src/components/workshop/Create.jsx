@@ -5,7 +5,7 @@ import StepButton from '@material-ui/core/StepButton';
 import Stepper from '@material-ui/core/Stepper';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import API from 'scripts/api';
+import API from 'api';
 import Finalize from 'components/workshop/create/Finalize';
 import Greetings from 'components/workshop/create/Greetings';
 import Name from 'components/workshop/create/Name';

@@ -1,4 +1,4 @@
-.PHONY: clietn server build local
+.PHONY: client server build local
 
 all: server
 
@@ -6,7 +6,8 @@ client:
 	cd client && yarn start
 
 server:
-	cd server && gin run .
+	cd server && go run .
+	# cd server && nodemon -x "go run ." 
 
 build: 
 	./scripts/local-build.sh
