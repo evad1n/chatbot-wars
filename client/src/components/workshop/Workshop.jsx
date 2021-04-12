@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
-import { PrivateRoute } from 'router/Router';
+import { PrivateRoute } from 'Router';
 
 
 export default function Workshop({ routes }) {

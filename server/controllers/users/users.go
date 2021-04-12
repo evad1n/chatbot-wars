@@ -47,7 +47,7 @@ func PostOne(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"id": res.InsertedID,
+		"uid": res.InsertedID,
 	})
 }
 

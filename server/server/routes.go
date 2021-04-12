@@ -5,6 +5,7 @@ import (
 	"github.com/evad1n/chatbot-wars/controllers/lines"
 	"github.com/evad1n/chatbot-wars/controllers/rooms"
 	"github.com/evad1n/chatbot-wars/controllers/users"
+	"github.com/evad1n/chatbot-wars/middleware"
 )
 
 // All the defined routes for the server
@@ -21,19 +22,19 @@ func (s *Server) registerRoutes() {
 
 		// Auth required endpoints
 		authorized := api.Group("")
-		authorized.Use(s.Auth.MiddlewareFunc())
+		authorized.Use(s.Auth.Middleware)
 		{
 			// Sessions
 			authorized.GET("/me", s.Auth.Me)
 			// Bots
 			authorized.GET("/users/bots", bots.GetUserBots)
-			authorized.GET("/bots/:id", bots.GetOne)
+			authorized.GET("/bots/:id", middleware.RequireOwnershipBot, bots.GetOne)
 			authorized.POST("/bots", bots.PostOne)
-			authorized.PUT("/bots/:id", bots.UpdateOne)
-			authorized.DELETE("/bots/:id", bots.DeleteOne)
+			authorized.PUT("/bots/:id", middleware.RequireOwnershipBot, bots.UpdateOne)
+			authorized.DELETE("/bots/:id", middleware.RequireOwnershipBot, bots.DeleteOne)
 			// Modify lines
-			authorized.POST("/bots/:id/:lineType", lines.PostOne)
-			authorized.DELETE("/bots/:id/:lineType/:index", lines.DeleteOne)
+			authorized.POST("/bots/:id/:lineType", middleware.ValidLineType, middleware.RequireOwnershipBot, lines.PostOne)
+			authorized.DELETE("/bots/:id/:lineType/:index", middleware.ValidLineType, middleware.RequireOwnershipBot, lines.DeleteOne)
 		}
 
 		// Rooms socket

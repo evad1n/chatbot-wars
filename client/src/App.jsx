@@ -1,5 +1,5 @@
 import React from 'react';
-import Router from 'router/Router';
+import Router from './Router';
 import { ThemeProvider } from '@material-ui/core/styles';
 import theme from 'theme';
 import { ProvideAuth } from "hooks/auth";

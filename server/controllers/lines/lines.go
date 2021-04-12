@@ -1,13 +1,11 @@
 package lines
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/evad1n/chatbot-wars/auth"
 	"github.com/evad1n/chatbot-wars/common"
 	"github.com/evad1n/chatbot-wars/db"
 	"github.com/evad1n/chatbot-wars/models"
@@ -15,37 +13,18 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-var lineTypes = map[string]struct{}{
-	"greetings": {},
-	"questions": {},
-	"responses": {},
-}
-
-func validLineType(lineType string) error {
-	if _, ok := lineTypes[lineType]; !ok {
-		return errors.New("not a valid line type")
-	}
-	return nil
-}
-
 func PostOne(c *gin.Context) {
 	ctx, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
+	val, exists := c.Get("bot")
+	if !exists {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+	bot := val.(*models.Bot)
+
 	lineType := c.Param("lineType")
-	// First verify line type
-	if err := validLineType(lineType); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
-	}
-
-	userID := auth.GetUserID(c)
-	botID := c.Param("id")
-
-	bot, allowed := auth.IsAllowedBot(c, botID, userID)
-	if !allowed {
-		return
-	}
 
 	// Bind request body
 	var line models.Line
@@ -75,26 +54,20 @@ func DeleteOne(c *gin.Context) {
 	ctx, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
-	lineType := c.Param("lineType")
-	// First verify line type
-	if err := validLineType(lineType); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
-	}
-
 	index, err := strconv.Atoi(c.Param("index"))
 	if err != nil {
 		c.String(http.StatusUnprocessableEntity, "index value must be a number")
 		return
 	}
 
-	userID := auth.GetUserID(c)
-	botID := c.Param("id")
-
-	bot, allowed := auth.IsAllowedBot(c, botID, userID)
-	if !allowed {
+	val, exists := c.Get("bot")
+	if !exists {
+		c.Status(http.StatusInternalServerError)
 		return
 	}
+	bot := val.(*models.Bot)
+
+	lineType := c.Param("lineType")
 
 	filter := bson.M{"_id": bot.ID}
 

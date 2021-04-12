@@ -25,7 +25,7 @@ func main() {
 		port = "8080"
 	}
 
-	log.SetFlags(log.Lshortfile | log.Ltime)
+	log.SetFlags(log.Llongfile | log.Ltime)
 
 	// Create server
 	s, err := server.CreateServer()

@@ -20,10 +20,10 @@ import (
 
 type (
 	AuthMiddleware struct {
-		MiddlewareFunc func() gin.HandlerFunc
-		Login          gin.HandlerFunc
-		Logout         gin.HandlerFunc
-		Me             gin.HandlerFunc
+		Middleware gin.HandlerFunc
+		Login      gin.HandlerFunc
+		Logout     gin.HandlerFunc
+		Me         gin.HandlerFunc
 	}
 
 	LoginInfo struct {
@@ -122,19 +122,17 @@ func getJWTClaims(c *gin.Context) *AuthClaims {
 func New(secret []byte) *AuthMiddleware {
 	auth := AuthMiddleware{}
 
-	auth.MiddlewareFunc = func() gin.HandlerFunc {
-		return func(c *gin.Context) {
-			tokenString := extractToken(c)
-			if token, err := ValidateToken(tokenString, secret); err != nil {
-				// If you don't want 401 error messages then swap these comments
-				// c.AbortWithStatus(http.StatusUnauthorized)
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-					"message": err.Error(),
-				})
-			} else {
-				claims := token.Claims.(*AuthClaims)
-				c.Set("claims", claims)
-			}
+	auth.Middleware = func(c *gin.Context) {
+		tokenString := extractToken(c)
+		if token, err := ValidateToken(tokenString, secret); err != nil {
+			// If you don't want 401 error messages then swap these comments
+			// c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message": err.Error(),
+			})
+		} else {
+			claims := token.Claims.(*AuthClaims)
+			c.Set("claims", claims)
 		}
 	}
 
@@ -198,39 +196,4 @@ func GetUserID(c *gin.Context) primitive.ObjectID {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": fmt.Sprintf("User ID is invalid: %v", err.Error())})
 	}
 	return userID
-}
-
-// Returns the bot and if the user owns it. Should end handler if the the bot is not owned
-func IsAllowedBot(c *gin.Context, botIDHex string, userID primitive.ObjectID) (*models.Bot, bool) {
-	ctx, cancel := common.TimeoutCtx(c)
-	defer cancel()
-
-	// Decode to mongoDB ObjectID
-	botID, err := db.ToMongoID(botIDHex)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return nil, false
-	}
-	filter := bson.M{"_id": botID}
-
-	res := db.Bots.FindOne(ctx, filter)
-	// If no doc is found
-	if res.Err() != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "no bot found with specified id"})
-		return nil, false
-	}
-
-	var bot models.Bot
-	if err := res.Decode(&bot); err != nil {
-		log.Printf("Checking user privileges: decoding: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return nil, false
-	}
-
-	if bot.UID != userID {
-		c.Status(http.StatusForbidden)
-		return nil, false
-	}
-
-	return &bot, true
 }

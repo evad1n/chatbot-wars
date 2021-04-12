@@ -8,6 +8,7 @@ import (
 
 	"github.com/evad1n/chatbot-wars/db"
 	"github.com/evad1n/chatbot-wars/models"
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -36,12 +37,12 @@ type (
 )
 
 const (
-	chatInterval = 2 // Add a line every x seconds
-	timeout      = 3 // timeout * chatInterval is the timeout threshold in seconds
+	chatInterval = 1200 // Add a line every x milliseconds
+	timeout      = 3    // timeout * chatInterval is the timeout threshold in seconds
 )
 
 var (
-	rooms = make(map[string]*Room)
+// rooms = make(map[string]*Room)
 )
 
 // Start the bot conversation in a room
@@ -50,14 +51,19 @@ func (r *Room) Start() {
 	r.RepeatMap = make(map[int]LastLine)
 	r.PrevBotIdx = -1
 
+	ticker := time.NewTicker(time.Millisecond * chatInterval)
+
 	// Timer for chat messages
-	for range time.Tick(time.Second * chatInterval) {
+	for range ticker.C {
 		// No bots no fun
 		if len(r.Bots) == 0 {
 			continue
 		} else {
 			msg := r.GetNextMessage()
-			if err := r.Conn.WriteJSON(msg); err != nil {
+			if err := r.Conn.WriteJSON(gin.H{
+				"type":    "NEW_MESSAGE",
+				"message": msg,
+			}); err != nil {
 				return
 			}
 		}
@@ -99,6 +105,14 @@ func (r *Room) AddBot(hexID string) {
 	}
 
 	r.Bots = append(r.Bots, bot)
+
+	// Handle duplicate logic here
+	if err := r.Conn.WriteJSON(gin.H{
+		"type": "ADD_BOT",
+		"id":   bot.ID,
+	}); err != nil {
+		return
+	}
 }
 
 // Gets the next message according to a very advanced algorithm (NP-complete)

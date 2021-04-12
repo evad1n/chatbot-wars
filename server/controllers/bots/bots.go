@@ -25,13 +25,13 @@ func GetOne(c *gin.Context) {
 	_, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
-	userID := auth.GetUserID(c)
-	botID := c.Param("id")
-
-	bot, allowed := auth.IsAllowedBot(c, botID, userID)
-	if !allowed {
+	// TODO: test this
+	val, exists := c.Get("bot")
+	if !exists {
+		c.Status(http.StatusInternalServerError)
 		return
 	}
+	bot := val.(*models.Bot)
 
 	c.JSON(http.StatusOK, bot)
 }
@@ -109,12 +109,12 @@ func UpdateOne(c *gin.Context) {
 	ctx, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
-	userID := auth.GetUserID(c)
-	botID := c.Param("id")
-	bot, allowed := auth.IsAllowedBot(c, botID, userID)
-	if !allowed {
+	val, exists := c.Get("bot")
+	if !exists {
+		c.Status(http.StatusInternalServerError)
 		return
 	}
+	bot := val.(*models.Bot)
 
 	// Bind request body
 	var updatedBot models.Bot
@@ -133,7 +133,7 @@ func UpdateOne(c *gin.Context) {
 	}
 
 	// Preserve UserID
-	updatedBot.UID = userID
+	updatedBot.UID = bot.UID
 
 	filter := bson.M{"_id": bot.ID}
 
@@ -151,12 +151,12 @@ func DeleteOne(c *gin.Context) {
 	ctx, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
-	userID := auth.GetUserID(c)
-	botID := c.Param("id")
-	bot, allowed := auth.IsAllowedBot(c, botID, userID)
-	if !allowed {
+	val, exists := c.Get("bot")
+	if !exists {
+		c.Status(http.StatusInternalServerError)
 		return
 	}
+	bot := val.(*models.Bot)
 
 	filter := bson.M{"_id": bot.ID}
 

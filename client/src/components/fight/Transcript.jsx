@@ -1,6 +1,6 @@
 import { Box, Divider, List, ListItem, ListItemText, makeStyles } from '@material-ui/core';
-import API, { moods } from 'api';
-import React, { useEffect, useRef, useState } from 'react';
+import { moods } from 'api';
+import React, { useEffect, useRef } from 'react';
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -15,32 +15,22 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function Transcript({ roomHash, scrollContainerRef }) {
+export default function Transcript({ transcript, scrollContainerRef }) {
     const classes = useStyles();
     const scrollRef = useRef(null);
 
-    const [transcript, setTranscript] = useState([]);
 
     // Autoscroll
     useEffect(() => {
         const el = scrollContainerRef.current;
-        if (scrollRef.current && (el.scrollHeight - el.clientHeight) - el.scrollTop < 80) {
+        if (!scrollRef.current)
+            return;
+        // const diff = (el.scrollHeight - el.clientHeight) - el.scrollTop;
+        // console.log(diff);
+        if ((el.scrollHeight - el.clientHeight) - el.scrollTop < 100) {
             scrollRef.current.scrollIntoView({ behaviour: "smooth" });
         }
     }, [transcript.length, scrollContainerRef]);
-
-    // Set timer loop for getting lines
-    useEffect(() => {
-        const interval = setInterval(async () => {
-            let response = await API.get(`/rooms/${roomHash}`);
-            setTranscript(response.data);
-        }, 1000);
-        return () => {
-            clearInterval(interval);
-            // Delete room on leave
-            API.delete(`/rooms/${roomHash}`);
-        };
-    }, [roomHash]);
 
     return (
         <Box className={classes.container}>

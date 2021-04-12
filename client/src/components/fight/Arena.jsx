@@ -1,6 +1,6 @@
 import { Button, FormControl, Grid, InputLabel, List, ListItem, ListItemText, ListSubheader, makeStyles, MenuItem, Paper, Select } from '@material-ui/core';
 import API from 'api';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
 import Transcript from './Transcript';
 
 
@@ -37,56 +37,77 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+const initialState = {
+    ws: new WebSocket("ws://localhost:8080/api/rooms"),
+    active: false,
+    roomBots: [],
+    transcript: [],
+    remainingBots: []
+};
+
+function reducer(state, action) {
+    switch (action.type) {
+        case "INIT":
+            return { ...state, remainingBots: action.bots };
+        case "START_ROOM":
+            return { ...state, active: true };
+        case "ADD_BOT":
+            const addedBot = state.remainingBots.find(bot => bot.id === action.id);
+            const newRemaining = state.remainingBots.filter(bot => bot.id !== action.id);
+            return { ...state, roomBots: [...state.roomBots, addedBot], remainingBots: newRemaining };
+        case "NEW_MESSAGE":
+            return { ...state, transcript: [...state.transcript, action.message] };
+        default:
+            throw new Error("unrecognized action type");
+    }
+}
+
 export default function Arena() {
     const classes = useStyles();
     const scrollContainerRef = useRef(null);
 
-
-    const [bots, setBots] = useState([]);
-    const [roomBots, setRoomBots] = useState([]);
-    const [roomHash, setRoomHash] = useState("");
     const [selectedBot, setSelectedBot] = useState("");
-    const [active, setActive] = useState(false);
+    const [state, dispatch] = useReducer(reducer, initialState);
 
-    // Create room
-    const startRoom = async () => {
-        let response = await API.post(`/rooms`);
-        setRoomHash(response.data.hash);
-        // Add all bots to room
-        for (const b of roomBots) {
-            await API.put(`/rooms/${response.data.hash}/${b.id}`);
-        }
-        setActive(true);
-    };
-
-    // TODO: start socket here and maybe pass it down?
     // Initial load of bots
     useEffect(() => {
         // Fetch bots
         const getBots = async () => {
             let response = await API.get('/bots');
-            setBots(response.data);
+            dispatch({
+                type: "INIT",
+                bots: response.data
+            });
         };
 
         getBots();
-    }, [roomHash]);
+    }, []);
+
+    // Socket listening
+    useEffect(() => {
+        state.ws.onmessage = event => {
+            dispatch(JSON.parse(event.data));
+        };
+    });
+
+
+    // Create room
+    const startRoom = async () => {
+        state.ws.send(JSON.stringify({
+            type: "START_ROOM"
+        }));
+        dispatch({ type: "START_ROOM" });
+    };
 
     const addBot = () => {
         if (selectedBot === "")
             return;
-        let newBot = bots[selectedBot];
-        // Check if already in
-        if (roomBots.some(bot => bot.id === newBot.id)) {
-            return;
-        }
-        if (active) {
-            API.put(`/rooms/${roomHash}/${newBot.id}`);
-        }
-        // Add bot ID to selected bots
-        setRoomBots([...roomBots, {
-            name: newBot.name,
-            id: newBot.id
-        }]);
+        let data = {
+            type: "ADD_BOT",
+            payload: selectedBot
+        };
+        state.ws.send(JSON.stringify(data));
+        setSelectedBot("");
     };
 
     const changeSelection = (event) => {
@@ -108,9 +129,9 @@ export default function Arena() {
                             <MenuItem value="">
                                 <em>None</em>
                             </MenuItem>
-                            {bots.map((bot, index) => {
+                            {state.remainingBots.map((bot, index) => {
                                 return (
-                                    <MenuItem value={index} key={index}>{bot.name}</MenuItem>
+                                    <MenuItem value={bot.id} key={index}>{bot.name}</MenuItem>
                                 );
                             })}
                         </Select>
@@ -120,7 +141,7 @@ export default function Arena() {
                 <Grid item xs={12}>
                     <List>
                         <ListSubheader style={{ textAlign: "center" }}>Current Bots</ListSubheader>
-                        {roomBots.map((bot, index) => (
+                        {state.roomBots.map((bot, index) => (
                             <ListItem key={index}>
                                 <ListItemText primary={bot.name} />
                             </ListItem>
@@ -129,8 +150,8 @@ export default function Arena() {
                 </Grid>
             </Grid>
             <Grid container item xs={9} className={classes.transcriptContainer} ref={scrollContainerRef}>
-                {active ? (
-                    <Transcript roomHash={roomHash} scrollContainerRef={scrollContainerRef} />
+                {state.active ? (
+                    <Transcript transcript={state.transcript} scrollContainerRef={scrollContainerRef} />
                 ) : (
                     <Grid container className={classes.notStartedContainer} item xs={12}>
                         <Grid item xs={12}>

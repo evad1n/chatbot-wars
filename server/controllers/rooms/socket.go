@@ -51,11 +51,11 @@ func ListenRoom(c *gin.Context) {
 
 		// Support 2 actions: start and addBot
 		switch msg.Type {
-		case "start":
+		case "START_ROOM":
 			if !room.Active {
 				go room.Start()
 			}
-		case "add":
+		case "ADD_BOT":
 			room.AddBot(msg.Payload)
 		}
 	}
