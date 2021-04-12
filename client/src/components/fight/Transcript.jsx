@@ -25,8 +25,6 @@ export default function Transcript({ transcript, scrollContainerRef }) {
         const el = scrollContainerRef.current;
         if (!scrollRef.current)
             return;
-        // const diff = (el.scrollHeight - el.clientHeight) - el.scrollTop;
-        // console.log(diff);
         if ((el.scrollHeight - el.clientHeight) - el.scrollTop < 100) {
             scrollRef.current.scrollIntoView({ behaviour: "smooth" });
         }

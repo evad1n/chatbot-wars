@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const initialState = {
-    ws: new WebSocket("ws://localhost:8080/api/rooms"),
+    ws: new WebSocket(process.env.NODE_ENV === 'development' ? "ws://localhost:8080/api/rooms" : `ws://${document.location.host}/api/rooms`),
     active: false,
     roomBots: [],
     transcript: [],

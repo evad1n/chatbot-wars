@@ -37,7 +37,7 @@ type (
 )
 
 const (
-	chatInterval = 1200 // Add a line every x milliseconds
+	chatInterval = 1800 // Add a line every x milliseconds
 	timeout      = 3    // timeout * chatInterval is the timeout threshold in seconds
 )
 
