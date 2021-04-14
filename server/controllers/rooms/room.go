@@ -70,51 +70,6 @@ func (r *Room) Start() {
 	}
 }
 
-// Add a bot to the room
-func (r *Room) AddBot(hexID string) {
-	ctx := context.Background()
-
-	// Decode to mongoDB ObjectID
-	id, err := db.ToMongoID(hexID)
-	if err != nil {
-		log.Println("invalid bot ID")
-		return
-	}
-
-	// Don't add duplicates bots
-	for _, bot := range r.Bots {
-		if bot.ID == id {
-			log.Println("duplicate bot")
-			return
-		}
-	}
-
-	filter := bson.M{"_id": id}
-
-	res := db.Bots.FindOne(ctx, filter)
-	// If no doc is found
-	if res.Err() != nil {
-		log.Printf("no bot found with id: %v\n", id)
-		return
-	}
-
-	var bot models.Bot
-	if err := res.Decode(&bot); err != nil {
-		log.Printf("GetOne: decoding: %v\n", err)
-		return
-	}
-
-	r.Bots = append(r.Bots, bot)
-
-	// Handle duplicate logic here
-	if err := r.Conn.WriteJSON(gin.H{
-		"type": "ADD_BOT",
-		"id":   bot.ID,
-	}); err != nil {
-		return
-	}
-}
-
 // Gets the next message according to a very advanced algorithm (NP-complete)
 func (r *Room) GetNextMessage() Message {
 	// Select new random bot for random message
@@ -164,5 +119,79 @@ func (r *Room) GetNextMessage() Message {
 	return Message{
 		Name: bot.Name,
 		Line: lines[lineIndex],
+	}
+}
+
+// Add a bot to the room
+func (r *Room) AddBot(hexID string) {
+	ctx := context.Background()
+
+	// Decode to mongoDB ObjectID
+	id, err := db.ToMongoID(hexID)
+	if err != nil {
+		log.Println("invalid bot ID")
+		return
+	}
+
+	// Don't add duplicates bots
+	for _, bot := range r.Bots {
+		if bot.ID == id {
+			log.Println("duplicate bot")
+			return
+		}
+	}
+
+	filter := bson.M{"_id": id}
+
+	res := db.Bots.FindOne(ctx, filter)
+	// If no doc is found
+	if res.Err() != nil {
+		log.Printf("no bot found with id: %v\n", id)
+		return
+	}
+
+	var bot models.Bot
+	if err := res.Decode(&bot); err != nil {
+		log.Printf("GetOne: decoding: %v\n", err)
+		return
+	}
+
+	r.Bots = append(r.Bots, bot)
+
+	// Handle duplicate logic here
+	if err := r.Conn.WriteJSON(gin.H{
+		"type": "ADD_BOT",
+		"id":   bot.ID,
+	}); err != nil {
+		return
+	}
+}
+
+func (r *Room) RemoveBot(hexID string) {
+	// Decode to mongoDB ObjectID
+	id, err := db.ToMongoID(hexID)
+	if err != nil {
+		log.Println("invalid bot ID")
+		return
+	}
+
+	idx := -1
+	for i, bot := range r.Bots {
+		if bot.ID == id {
+			idx = i
+			break
+		}
+	}
+
+	if idx != -1 {
+		r.Bots = append(r.Bots[:idx], r.Bots[idx+1:]...)
+
+		// Handle duplicate logic here
+		if err := r.Conn.WriteJSON(gin.H{
+			"type": "REMOVE_BOT",
+			"id":   id,
+		}); err != nil {
+			return
+		}
 	}
 }

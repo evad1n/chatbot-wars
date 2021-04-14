@@ -1,4 +1,5 @@
-import { Button, FormControl, Grid, InputLabel, List, ListItem, ListItemText, ListSubheader, makeStyles, MenuItem, Paper, Select } from '@material-ui/core';
+import { Button, Divider, FormControl, Grid, IconButton, InputLabel, List, ListItem, ListItemSecondaryAction, ListItemText, makeStyles, MenuItem, Paper, Select, Tooltip, Typography } from '@material-ui/core';
+import { Close } from '@material-ui/icons';
 import API from 'api';
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import Transcript from './Transcript';
@@ -13,7 +14,8 @@ const useStyles = makeStyles((theme) => ({
     },
     sideBar: {
         borderRight: "1px solid grey",
-        alignContent: "flex-start"
+        maxHeight: "100%",
+        flexWrap: "nowrap"
     },
     select: {
         padding: 10,
@@ -21,6 +23,25 @@ const useStyles = makeStyles((theme) => ({
     },
     addButton: {
         marginTop: 5
+    },
+    botListContainer: {
+        flexGrow: 1,
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0
+    },
+    botList: {
+        maxHeight: "100%",
+        overflow: "auto",
+        minHeight: 0
+    },
+    currentBotsTitle: {
+        padding: 10,
+        textAlign: "center",
+        opacity: 0.8,
+        fontWeight: "bold",
+        fontSize: 20,
+        borderBottom: "0.1px solid black",
     },
     notStartedContainer: {
         textAlign: "center",
@@ -55,6 +76,10 @@ function reducer(state, action) {
             const addedBot = state.remainingBots.find(bot => bot.id === action.id);
             const newRemaining = state.remainingBots.filter(bot => bot.id !== action.id);
             return { ...state, roomBots: [...state.roomBots, addedBot], remainingBots: newRemaining };
+        case "REMOVE_BOT":
+            const removedBot = state.roomBots.find(bot => bot.id === action.id);
+            const newRoomBots = state.roomBots.filter(bot => bot.id !== action.id);
+            return { ...state, roomBots: newRoomBots, remainingBots: [...state.remainingBots, removedBot] };
         case "NEW_MESSAGE":
             return { ...state, transcript: [...state.transcript, action.message] };
         default:
@@ -110,14 +135,21 @@ export default function Arena() {
         setSelectedBot("");
     };
 
+    const removeBot = (id) => {
+        state.ws.send(JSON.stringify({
+            type: "REMOVE_BOT",
+            payload: id
+        }));
+    };
+
     const changeSelection = (event) => {
         setSelectedBot(event.target.value);
     };
 
     return (
         <Grid component={Paper} elevation={3} container item xs={12} className={classes.container}>
-            <Grid container item xs={3} className={classes.sideBar}>
-                <Grid item xs={12} className={classes.select}>
+            <Grid container direction="column" item xs={3} className={classes.sideBar}>
+                <Grid item className={classes.select}>
                     <FormControl variant="outlined" fullWidth>
                         <InputLabel>Add a bot</InputLabel>
                         <Select
@@ -138,13 +170,23 @@ export default function Arena() {
                         <Button onClick={addBot} variant={'contained'} color={'secondary'} className={classes.addButton}>Add</Button>
                     </FormControl>
                 </Grid>
-                <Grid item xs={12}>
-                    <List>
-                        <ListSubheader style={{ textAlign: "center" }}>Current Bots</ListSubheader>
+                <Grid item className={classes.botListContainer}>
+                    <Typography className={classes.currentBotsTitle}>Current Bots</Typography>
+                    <List className={classes.botList}>
                         {state.roomBots.map((bot, index) => (
-                            <ListItem key={index}>
-                                <ListItemText primary={bot.name} />
-                            </ListItem>
+                            <React.Fragment key={index}>
+                                {index !== 0 && <Divider />}
+                                <ListItem>
+                                    <ListItemText primary={bot.name} />
+                                    <ListItemSecondaryAction>
+                                        <Tooltip title="Remove">
+                                            <IconButton onClick={() => removeBot(bot.id)} edge="end" aria-label="remove">
+                                                <Close />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                            </React.Fragment>
                         ))}
                     </List>
                 </Grid>

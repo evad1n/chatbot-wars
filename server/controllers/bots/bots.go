@@ -25,7 +25,6 @@ func GetOne(c *gin.Context) {
 	_, cancel := common.TimeoutCtx(c)
 	defer cancel()
 
-	// TODO: test this
 	val, exists := c.Get("bot")
 	if !exists {
 		c.Status(http.StatusInternalServerError)

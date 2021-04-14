@@ -57,6 +57,8 @@ func ListenRoom(c *gin.Context) {
 			}
 		case "ADD_BOT":
 			room.AddBot(msg.Payload)
+		case "REMOVE_BOT":
+			room.RemoveBot(msg.Payload)
 		}
 	}
 }
