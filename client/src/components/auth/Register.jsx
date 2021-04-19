@@ -15,7 +15,8 @@ const useStyles = makeStyles((theme) => ({
         fontSize: 36
     },
     formContainer: {
-        width: 600,
+        width: "60vw",
+        minWidth: 300,
         margin: "auto",
         padding: 20
     },

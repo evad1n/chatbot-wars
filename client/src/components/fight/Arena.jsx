@@ -9,13 +9,15 @@ import Transcript from './Transcript';
 const useStyles = makeStyles((theme) => ({
     container: {
         flexGrow: 1,
+        flexWrap: "nowrap",
         height: "100%",
         border: "1px solid #bbb"
     },
     sideBar: {
         borderRight: "1px solid grey",
         maxHeight: "100%",
-        flexWrap: "nowrap"
+        flexWrap: "nowrap",
+        minWidth: 160
     },
     select: {
         padding: 10,
