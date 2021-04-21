@@ -89,10 +89,7 @@ Delete line from bot           | DELETE | /bots/*:id*/*:lineType*/*:index*  | Ye
 
 Name                           | Method | Path                              | RequireAuth
 -------------------------------|--------|-----------------------------------|------------
-Create a room                  | POST   | /rooms                            | No
-Get transcript from a room     | GET    | /rooms/*:roomHash*                | No
-Add a bot to a room            | PUT    | /rooms/*:roomHash*/*:botID*       | No
-Delete a room                  | DELETE | /rooms/*:roomHash*                | No
+Start a room with a websocket  | WS   | /rooms                            | No
 
 ### **Other**
 

@@ -125,6 +125,7 @@ export default function NavMenu({ routes, children }) {
                             component={NavLink}
                             activeClassName={classes.activeNav}
                             to={route.path}
+                            onClick={() => setDrawerOpen(false)}
                             key={index}>
                             <ListItemIcon>
                                 <route.icon />
@@ -145,7 +146,6 @@ export default function NavMenu({ routes, children }) {
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"
-                        // edge="start"
                         onClick={() => setDrawerOpen(true)}
                         className={classes.menuButton}
                     >
@@ -172,7 +172,6 @@ export default function NavMenu({ routes, children }) {
                                     color={theme.palette.secondary.main}
                                     hoverColor={theme.palette.secondary.dark}
                                 />
-
                             </div>
                             :
                             <Typography component={NavLink} to={"/login"} variant="h5" className={classes.loginLink}>{loaded && "Login"}</Typography>
