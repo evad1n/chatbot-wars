@@ -27,12 +27,26 @@ jobs:
         run: yarn build
         working-directory: ./client
 
+      - name: Cache build output
+        uses: actions/cache@v1
+        id: cache-build
+        with:
+          path: "."
+          key: ${{ github.sha }}
+
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     needs: build
 
     steps:
+      - name: Load build output from cache
+        uses: actions/cache@v1
+        id: restore-build
+        with:
+          path: "."
+          key: ${{ github.sha }}
+
       - name: Move build files to subdir
         run: ./scripts/package.sh
         working-directory: ./
