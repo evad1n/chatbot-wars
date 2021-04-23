@@ -3,45 +3,44 @@ name: Build & Deploy
 # Automatic on push
 on:
   push:
-    branches: [ build ]
+    branches: [build]
 
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository on build branch
-      uses: actions/checkout@v2
-      with:
-        ref: build
+      - name: Checkout repository on build branch
+        uses: actions/checkout@v2
+        with:
+          ref: build
 
-    - name: Set up Node.js 
-      uses: actions/setup-node@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
 
-    - name: Install dependencies
-      run: yarn
-      working-directory: ./client
+      - name: Install dependencies
+        run: yarn
+        working-directory: ./client
 
-    - name: Build
-      run: yarn build
-      working-directory: ./client
-  
+      - name: Build
+        run: yarn build
+        working-directory: ./client
 
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     needs: build
 
-    - name: Move build files to subdir
-      run: ./scripts/package.sh
-      working-directory: ./
+    steps:
+      - name: Move build files to subdir
+        run: ./scripts/package.sh
+        working-directory: ./
 
-    - name: Push build dir to prod
-      uses: s0/git-publish-subdir-action@develop
-      env:
-        REPO: self
-        BRANCH: prod
-        FOLDER: build
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push build dir to prod
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: prod
+          FOLDER: build
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
