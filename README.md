@@ -1,3 +1,5 @@
+![Build & Deploy](https://github.com/evad1n/chatbot-wars/actions/workflows/build.yml/badge.svg)
+
 # Chatbot Wars
 
 Make a chatbot, watch it crash and burn
