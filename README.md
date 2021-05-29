@@ -6,8 +6,6 @@ Make a chatbot, watch it crash and burn
 
 [->Link to app<-](https://chatbot-wars.herokuapp.com/)
 
-[Assignment](http://cit.dixie.edu/cs/4200/assignments/passport.xhtml)
-
 Design docs located in [design folder](./design/)
 
 ----
